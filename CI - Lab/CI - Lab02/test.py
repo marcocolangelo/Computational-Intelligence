@@ -7,28 +7,52 @@ import logging
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from copy import deepcopy
-from rules import rule_is_even,rule_is_odd
+import rules as rs
 
 
 def test():
     λ = 1
     σ = 0.001
     μ = 1
-    STEPS = 100
+    STEPS = 10000
     # Specifica la lista di regole.
 
-    # qui ancora devi mettere le regole. trovi un elenco su rules.py
+    #test1
     rules = [
-        rule_is_even,
-        rule_is_odd
+        rs.rule_is_even,
+        rs.rule_is_odd,
+        rs.rule_is_multiple_of_3_and_5,
+        rs.rule_is_perfect_square,
+        rs.rule_is_prime,
+        rs.rule_is_multiple_of_golden_ratio
     ]
 
-    weights = [22.78843219 -7.3754364 ] 
+    weights = [-158.37343213 ,-177.89434133,   15.06265569   ,83.63611385  ,-87.40610713,
+   49.67343213] 
+
+    #test2
+    # rules = [
+    #     rs.rule_is_even,
+    #     rs.rule_is_odd,
+    #     rs.rule_is_multiple_of_3_and_5,
+    #     rs.rule_is_perfect_square,
+    #     rs.rule_is_prime
+    # ]
+
+    # weights = [ 3.2378269 ,-54.52005794,  -7.36840669, -20.70913926,   4.13040257] 
+
+    #test3
+    # rules = [
+    #     rule_is_even,
+    #     rule_is_odd
+    # ]
+
+    # weights = [22.78843219 -7.3754364 ] 
 
     # Inizializza la popolazione di agenti con pesi casauli per ogni regola
     player =  NimAgent(f"Agent 1",np.array(rules), weights,σ)
 
-    agents = AgentsVec([optimal])
+    agents = AgentsVec([pure_random])
     opposer = agents.first()
 
     best_fitness = None
@@ -39,17 +63,9 @@ def test():
     for step in range(STEPS // λ):
         fit_vec = []
 
-        #after each 1/3 of the 
-        if step % ((STEPS // λ) // 3) == 0:
-            opposer = agents.next()
-
-        # Seleziona gli agenti a caso e creane una copia (figli)
-        #offspring = select_parents(population,μ,λ)
-
-        # Applica la mutazione agli agenti copiati.
-        #mutate(offspring)
-        # print(f"Offspring dopo mutate: {offspring}")
-
+        # #after each 1/3 of the 
+        # if step % ((STEPS // λ) // 3) == 0:
+        #     opposer = agents.next()
         
         #make the order of player randomic
         my_strategy = player.choose_move
@@ -66,7 +82,6 @@ def test():
         #and in a fitness vector
         fit_vec.append(fit)
 
-
         won,_=fit
 
         if won:
@@ -77,10 +92,6 @@ def test():
             best_fitness = max(fit_vec)
             #history.append((step, best_fitness))
 
-        
-        # logging.info(
-        # f"Fitness: {player.getFitness()} (with σ={player.σ:0.3g} from actor {player.getName()})"
-        # )
 
     logging.info(
     f"Best solution: {best_fitness} (with σ={player.σ:0.3g} from actor {player.getName()})"
@@ -95,9 +106,6 @@ def test():
         f"Win counter: {win_counter} -> success_rate = {win_counter/STEPS})"
     )
 
-    # history = np.array(history)
-    # plt.figure(figsize=(14, 4))
-    # plt.plot(history[:, 0], history[:, 1], marker=".")
 
 if __name__ == "__main__":
   print("Test")

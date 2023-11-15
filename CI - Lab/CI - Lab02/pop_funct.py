@@ -44,3 +44,20 @@ def mutate(population):         #population must be a list of NimAgent
     # Muta i valori delle altre regole in base al valore di sigma corrente.
     parent.weights = np.random.normal(loc=parent.weights, scale=parent.σ)
     
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0 or n % 3 == 0:
+        return False
+    i = 5
+    while i * i <= n:
+        if n % i == 0 or n % (i + 2) == 0:
+            return False
+        i += 6
+    return True
+
+def is_perfect_square(n):
+    sqrt_n = np.sqrt(n)
+    return sqrt_n % 1 == 0

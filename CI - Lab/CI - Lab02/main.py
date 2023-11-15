@@ -7,20 +7,40 @@ import logging
 from matplotlib import pyplot as plt
 from matplotlib import cm
 from copy import deepcopy
-from rules import rule_is_even,rule_is_odd
+import rules as rs
 
 
 def main():
     λ = 20
     σ = 0.001
     μ = 5 
-    STEPS = 10000
+    STEPS = 100_000
     # Specifica la lista di regole.
 
     # qui ancora devi mettere le regole. trovi un elenco su rules.py
     rules = [
-        rule_is_even,
-        rule_is_odd
+        rs.rule_is_even,
+        rs.rule_is_even_2,
+        rs.rule_is_even_3,
+        rs.rule_is_even_4,
+        rs.rule_is_even_5,
+        rs.rule_is_odd,
+        rs.rule_is_odd_2,
+        rs.rule_is_odd_3,
+        rs.rule_is_odd_4,
+        rs.rule_is_odd_5,
+        rs.rule_is_multiple_of_3_and_5,
+        rs.rule_is_perfect_square,
+        rs.rule_is_perfect_square_2,
+        rs.rule_is_perfect_square_3,
+        rs.rule_is_perfect_square_4,
+        rs.rule_is_perfect_square_5,
+        rs.rule_is_prime,
+        rs.rule_is_prime_2,
+        rs.rule_is_prime_3,
+        rs.rule_is_prime_4,
+        rs.rule_is_prime_5,
+        rs.rule_is_multiple_of_golden_ratio,
     ]
 
 

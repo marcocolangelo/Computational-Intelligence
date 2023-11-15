@@ -1,5 +1,6 @@
 from nim import Nim,Nimply
-
+from pop_funct import is_prime,is_perfect_square
+import numpy as np
 # Regole basate sul numero di oggetti rimasti nel gioco
 
 #take the first row you find with even number of remaining matches
@@ -9,6 +10,30 @@ def rule_is_even(state: Nim):
             return Nimply(index_r,1)
     return None    
 
+def rule_is_even_2(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 == 0 and row > 1:
+            return Nimply(index_r,2)
+    return None   
+
+def rule_is_even_3(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 == 0 and row > 2:
+            return Nimply(index_r,3)
+    return None   
+
+def rule_is_even_4(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 == 0 and row > 3:
+            return Nimply(index_r,4)
+    return None   
+
+def rule_is_even_5(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 == 0 and row > 4:
+            return Nimply(index_r,5)
+    return None   
+
 #take the first row you find with odd number of remaining matches
 def rule_is_odd(state: Nim):
     for index_r,row in enumerate(state.rows):
@@ -17,56 +42,125 @@ def rule_is_odd(state: Nim):
 
     return None 
 
+def rule_is_odd_2(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 != 0 and row > 1 :
+            return Nimply(index_r,2)
+
+    return None 
+
+def rule_is_odd_3(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 != 0 and row > 2 :
+            return Nimply(index_r,3)
+
+    return None 
+
+def rule_is_odd_4(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 != 0 and row > 3:
+            return Nimply(index_r,4)
+
+    return None 
+
+def rule_is_odd_5(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 != 0 and row > 4:
+            return Nimply(index_r,5)
+
+    return None 
+#take the first row you find with a prime number of remaining matches
+def rule_is_prime(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row != 0:
+            return Nimply(index_r,1)
+    return None  
+
+def rule_is_prime_2(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row > 1:
+            return Nimply(index_r,2)
+    return None  
+
+def rule_is_prime_3(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row > 2:
+            return Nimply(index_r,3)
+    return None  
+
+def rule_is_prime_4(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row > 3:
+            return Nimply(index_r,4)
+    return None  
+
+def rule_is_prime_5(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row > 4:
+            return Nimply(index_r,5)
+    return None  
+
+#Take the first row you find with a perfect square number of remaining matches
+def rule_is_perfect_square(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row != 0:
+            return Nimply(index_r,1)
+    return None
+
+def rule_is_perfect_square_2(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row > 1:
+            return Nimply(index_r,2)
+    return None
+
+def rule_is_perfect_square_3(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row > 2:
+            return Nimply(index_r,3)
+    return None
+
+def rule_is_perfect_square_4(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row > 3:
+            return Nimply(index_r,4)
+    return None
+
+def rule_is_perfect_square_5(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row > 4:
+            return Nimply(index_r,5)
+    return None
+
+#take the first row you find with a multiple of 3 and multiple of 5 remaining matches
+def rule_is_multiple_of_3_and_5(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 3 == 0 and row % 5 == 0 and row != 0:
+            return Nimply(index_r,1)
+    return None
+
+#take the first row with a multiple_of_golden_ratio
+def rule_is_multiple_of_golden_ratio(state: Nim):
+    golden_ratio = (1 + np.sqrt(5)) / 2
+    for index_r,row in enumerate(state.rows):
+        if row != 0 and row % golden_ratio == 0:
+            return Nimply(index_r,1)
+    return None
+
+# #Take the first row you find with the highest ratio of remaining matches to total matches
+# def rule_highest_ratio(state: Nim):
+#     for index_r,row in enumerate(state.rows):
+#         if row != 0:
+#             ratio = row / sum(state.rows)
+#             return Nimply(index_r,1)
+#     return None
+
+# #Take the first row you find with the lowest difference between remaining matches and the number of matches that the opponent can remove in a turn
+# def rule_lowest_difference(state: Nim):
+#     for index_r,row in enumerate(state.rows):
+#         if row != 0:
+#             difference = row - state.opponent_moves
+#             return Nimply(index_r,1)
+#     return None
 
 
 
-# def rule_is_even(state: Nim):
-#   return Nimply(state.remaining_objects % 2 == 0, 2)
-
-# def rule_is_even(state: Nim):
-#   return Nimply(state.remaining_objects % 2 == 0, 3)
-
-# def rule_is_even(state: Nim):
-#   return Nimply(state.remaining_objects % 2 == 0, 4)
-
-# def rule_is_odd(state: Nim):
-#   return Nimply(state.remaining_objects % 2 == 1, 1)
-
-# def rule_is_multiple_of_3(state: Nim):
-#   return Nimply(state.remaining_objects % 3 == 0, 1)
-
-# def rule_is_multiple_of_5(state: Nim):
-#   return Nimply(state.remaining_objects % 5 == 0, 1)
-
-# # Regole basate sul numero di oggetti che l'avversario può rimuovere in un turno
-
-# def rule_opponent_can_remove_one(state: Nim):
-#   return Nimply(state.opponent_moves == 1, 1)
-
-# def rule_opponent_can_remove_two(state: Nim):
-#   return Nimply(state.opponent_moves == 2, 1)
-
-# def rule_opponent_can_remove_three(state: Nim):
-#   return Nimply(state.opponent_moves == 3, 1)
-
-# # Regole basate sul fitness degli agenti
-
-# def rule_my_fitness_is_higher(state: Nim):
-#   return Nimply(state.my_fitness > state.opponent_fitness, 1)
-
-# def rule_my_fitness_is_lower(state: Nim):
-#   return Nimply(state.my_fitness < state.opponent_fitness, 1)
-
-# def rule_my_fitness_is_equal(state: Nim):
-#   return Nimply(state.my_fitness == state.opponent_fitness, 1)
-
-# # Regole basate sul comportamento degli agenti
-
-# def rule_opponent_removed_one(state: Nim):
-#   return Nimply(state.opponent_move == 1, 1)
-
-# def rule_opponent_removed_two(state: Nim):
-#   return Nimply(state.opponent_move == 2, 1)
-
-# def rule_opponent_removed_three(state: Nim):
-#   return Nimply(state.opponent_move == 3, 1)

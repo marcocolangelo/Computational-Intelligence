@@ -175,6 +175,8 @@ def test():
 -5538.63327091 , 8135.73468676  ,5131.44691438  ,-587.19810707,
 5757.34758171 ,-3913.51457201 , 8185.19499578 , 3273.464214,
 4365.53130607 ,-4478.36170294, -4987.96506237 ,-6045.83430714]
+   
+    
     rules8 = [
     rs.rule_is_even,
     rs.rule_is_even_2,
@@ -197,9 +199,42 @@ def test():
     rs.rule_is_prime_4,
     rs.rule_is_prime_5,
 ]
+    
+     
+    weights9 = [ 2.87012174 ,-2.55079735  ,4.56963831,  0.47238144,  1.58823817,  4.71175884,
+  1.05888506, -9.64781183 ,16.48161889 ,-9.93387607 , 3.47595983  ,1.55189889,
+  6.15702085 ,-5.68410714 ,-0.61758665 , 6.10335951, 13.73857479  ,0.56824887,
+  2.75321229, 10.13502211, -7.23085029 , 7.1954275 ]
+    
+    rules9 = [
+        rs.rule_is_even,
+        rs.rule_is_even_2,
+        rs.rule_is_even_3,
+        rs.rule_is_even_4,
+        rs.rule_is_even_5,
+        rs.rule_is_odd,
+        rs.rule_is_odd_2,
+        rs.rule_is_odd_3,
+        rs.rule_is_odd_4,
+        rs.rule_is_odd_5,
+        rs.rule_is_perfect_square,
+        rs.rule_is_perfect_square_2,
+        rs.rule_is_perfect_square_3,
+        rs.rule_is_perfect_square_4,
+        rs.rule_is_perfect_square_5,
+        rs.rule_is_prime,
+        rs.rule_is_prime_2,
+        rs.rule_is_prime_3,
+        rs.rule_is_prime_4,
+        rs.rule_is_prime_5,
+        rs.rule_is_multiple_of_3_and_5,
+        rs.rule_is_multiple_of_golden_ratio
+    ]
 
     # Inizializza la popolazione di agenti con pesi casauli per ogni regola
-    player1 = NimAgent(f"Agent 2",np.array(rules8), weights8,σ)
+
+    #actually test2 config is the best one
+    player1 = NimAgent(f"Agent 2",np.array(rules), weights,σ)
     player2 =  NimAgent(f"Agent 1",np.array(rules), weights,σ)
    
     agents = AgentsVec([optimal])

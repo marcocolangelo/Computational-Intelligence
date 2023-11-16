@@ -11,10 +11,10 @@ import rules as rs
 
 
 def main():
-    λ = 20
+    λ = 200
     σ = 0.001
-    μ = 5 
-    STEPS = 1_000_000
+    μ = 50 
+    STEPS = 100_000
     # Specifica la lista di regole.
 
     tr_rules = [
@@ -51,6 +51,8 @@ def main():
         rs.rule_is_prime_3,
         rs.rule_is_prime_4,
         rs.rule_is_prime_5,
+        rs.rule_is_multiple_of_3_and_5,
+        rs.rule_is_multiple_of_golden_ratio
     ]
 
 
@@ -110,7 +112,13 @@ def main():
             # save best (just for the plot)
         if best_fitness is None or best_fitness < max(fit_vec):
             best_fitness = max(fit_vec)
-            #history.append((step, best_fitness))
+            
+            if best_fitness[0] == True:
+                best_fitness2 = best_fitness[1] * 10
+            else:
+                best_fitness2 = best_fitness[1] 
+            
+            history.append((step, best_fitness2))
 
         population = deepcopy(offspring[-μ:])
 
@@ -124,9 +132,9 @@ def main():
         f"Weights: {population[-1].weights} (with σ={population[-1].σ:0.3g})"
     )
 
-    # history = np.array(history)
-    # plt.figure(figsize=(14, 4))
-    # plt.plot(history[:, 0], history[:, 1], marker=".")
+    history = np.array(history)
+    plt.figure(figsize=(14, 4))
+    plt.plot(history[:, 0], history[:, 1], marker=".")
 
 if __name__ == "__main__":
   main()

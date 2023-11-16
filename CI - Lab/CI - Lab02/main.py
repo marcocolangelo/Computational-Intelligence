@@ -14,8 +14,20 @@ def main():
     λ = 20
     σ = 0.001
     μ = 5 
-    STEPS = 100_000
+    STEPS = 1_000_000
     # Specifica la lista di regole.
+
+    tr_rules = [
+            rs.rule_is_even,
+            rs.rule_is_odd,
+            rs.rule_is_multiple_of_3_and_5,
+            rs.rule_is_perfect_square,
+            rs.rule_is_prime,
+            rs.rule_is_multiple_of_golden_ratio
+        ]
+
+    tr_weights = [-158.37343213 ,-177.89434133,   15.06265569   ,83.63611385  ,-87.40610713,
+   49.67343213] 
 
     # qui ancora devi mettere le regole. trovi un elenco su rules.py
     rules = [
@@ -29,7 +41,6 @@ def main():
         rs.rule_is_odd_3,
         rs.rule_is_odd_4,
         rs.rule_is_odd_5,
-        rs.rule_is_multiple_of_3_and_5,
         rs.rule_is_perfect_square,
         rs.rule_is_perfect_square_2,
         rs.rule_is_perfect_square_3,
@@ -40,7 +51,6 @@ def main():
         rs.rule_is_prime_3,
         rs.rule_is_prime_4,
         rs.rule_is_prime_5,
-        rs.rule_is_multiple_of_golden_ratio,
     ]
 
 
@@ -50,7 +60,9 @@ def main():
         for i in range(μ)
     ])
 
-    agents = AgentsVec([optimal])
+
+    player2 =  NimAgent(f"Agent 1",np.array(tr_rules), tr_weights,σ)
+    agents = AgentsVec([pure_random,optimal])
     opposer = agents.first()
 
     best_fitness = None

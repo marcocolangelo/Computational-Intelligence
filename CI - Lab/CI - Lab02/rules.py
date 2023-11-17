@@ -40,6 +40,12 @@ def rule_is_even_max(state: Nim):
             return Nimply(index_r,row)
     return None   
 
+def rule_is_even_middle(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 == 0 and row >= 3 :
+            return Nimply(index_r,3)
+    return None
+
 #take the first row you find with odd number of remaining matches
 def rule_is_odd(state: Nim):
     for index_r,row in enumerate(state.rows):
@@ -80,6 +86,11 @@ def rule_is_odd_max(state: Nim):
     for index_r,row in enumerate(state.rows):
         if row % 2 != 0 and row > 0:
             return Nimply(index_r,row)
+        
+def rule_is_odd_middle(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 != 0 and row >= 3:
+            return Nimply(index_r,3)
 
     return None 
 #take the first row you find with a prime number of remaining matches
@@ -119,6 +130,12 @@ def rule_is_prime_max(state: Nim):
             return Nimply(index_r,row)
     return None  
 
+def rule_is_prime_middle(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row >= 3:
+            return Nimply(index_r,3)
+    return None 
+
 #Take the first row you find with a perfect square number of remaining matches
 def rule_is_perfect_square(state: Nim):
     for index_r,row in enumerate(state.rows):
@@ -148,6 +165,12 @@ def rule_is_perfect_square_5(state: Nim):
     for index_r,row in enumerate(state.rows):
         if is_perfect_square(row) and row > 4:
             return Nimply(index_r,5)
+    return None
+
+def rule_is_perfect_square_middle(state : Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row >= 3:
+            return Nimply(index_r,3)
     return None
 
 def rule_is_perfect_square_max(state : Nim):
@@ -212,7 +235,7 @@ def rule_lowest_remaining_matches(state: Nim):
     min_row = state.rows[0]
     min_row_index = 0
     move = None
-    
+
     for index_r, row in enumerate(state.rows):
         if row < min_row and row > 0:
             min_row = row

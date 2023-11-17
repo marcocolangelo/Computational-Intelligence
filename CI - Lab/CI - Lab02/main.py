@@ -77,7 +77,7 @@ def main():
         offspring = select_parents(population,μ,λ)
 
         # Applica la mutazione agli agenti copiati.
-        σ = mutate(offspring,σ)
+        mutate(offspring,σ)
         # print(f"Offspring dopo mutate: {offspring}")
         
         for player in offspring:

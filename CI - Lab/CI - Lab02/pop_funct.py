@@ -51,19 +51,16 @@ def select_parents(population,μ,λ):
 def mutate(population,sigma):         #population must be a list of NimAgent
   # Seleziona λ genitori dalla popolazione.
   #parents = select_parents(population)
-    σ = np.random.normal(loc=sigma, scale=0.2)
-    if σ < 1e-5:
-      σ = 1e-5
+    
   # Muta i genitori.
     for parent in population:
-        # Muta il valore di sigma.
-        parent.σ = σ 
-
-        # Se il valore di sigma è troppo piccolo, sostituirlo con un piccolo numero.
-       
+        parent.σ = np.random.normal(loc=sigma, scale=0.2)
+        
+        if parent.σ < 1e-5:
+            parent.σ = 1e-5
+               
         # Muta i valori delle altre regole in base al valore di sigma corrente.
-        parent.weights = np.random.normal(loc=parent.weights, scale=parent.σ)
-    return σ
+    parent.weights = np.random.normal(loc=parent.weights, scale=parent.σ)
     
 def is_prime(n):
     if n <= 1:

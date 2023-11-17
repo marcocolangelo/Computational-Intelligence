@@ -40,12 +40,15 @@ def fitness2(my_agent: NimAgent,AGENTS):
     print(f"L'agente {my_agent.getName()} vince con perc: {victory_perc}")
     return victory_perc
 
-def select_parents(population,μ,λ):
+def select_parents(population,μ,λ,step):
   # Seleziona λ agenti randomici dalla popolazione.
     indices = np.random.randint(0, μ, size=(λ,))
     offspring = [deepcopy(population[i]) for i in indices]  # Restituisci i genitori.
     # print(f"Offspring in select_parents prima di np.array: {offspring}")
     # print(f"Offspring in select_parents dopo di np.array: {np.array(offspring)}")
+    for o in offspring:
+        name = str(o.name).split(" ")
+        o.name = "Agent " + str(step) + "."+ name[1]
     return np.array(offspring)
 
 def mutate(population,sigma):         #population must be a list of NimAgent

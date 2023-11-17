@@ -74,7 +74,7 @@ def main():
         # Seleziona gli agenti a caso e creane una copia (figli)
         print(f"Generazione numero: {step}")
         print(f"Popolazione: {[p.getName() for p in population]}")
-        offspring = select_parents(population,μ,λ)
+        offspring = select_parents(population,μ,λ,step)
 
         # Applica la mutazione agli agenti copiati.
         mutate(offspring,σ)

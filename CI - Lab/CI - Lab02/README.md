@@ -1,6 +1,6 @@
 ## NIM Game using  Adaptive (μ+λ)-ES
 
-# In collaboration with Roberto Pulvirenti
+# In collaboration with Roberto Pulvirenti S317704
 
 The aim of this lab was coding an agent able of competing against the OPTIMAL agent in the Nim game.
 
@@ -34,4 +34,5 @@ You can find the code to train the agents in the *main.py* file
 You can simulate several configuration behaviours in the *test.py* file and in the *test2.py* file (in which the most efficient fitness function, called fitness2, has been used)
 
 # POSSIBLE FUTURE IMPLEMENTATIONS:
-* Instead of a sets of prefixed rules where each rule has a priority value and for each turn the actor choice its rule according to these weights, we would create agents composed by a small neural network, where each neuron can be an ACTION one (representing the effective MOVE) or a SENSOR one (representing an IF condition). ACTION neurons and SENSOR neuron would be linked via weights each others and these weights would be updated though an ES based algorithm, in order to make the program more flexible and able to adapt itself to different opponents. 
+Instead of a set of prefixed rules where each rule has a priority value and for each turn the actor choice its rule according to these weights, we would create agents composed by a small neural network, where each neuron can be an ACTION one (representing the effective MOVE) or a SENSOR one (representing an IF condition). ACTION neurons and SENSOR neuron would be linked via weights each others and these weights would be updated though an ES based algorithm, in order to make the program more flexible and able to adapt itself to different opponents. 
+* Look at this project to have an idea about it : https://www.youtube.com/watch?v=N3tRFayqVtk&ab_channel=davidrandallmiller

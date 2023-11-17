@@ -34,6 +34,12 @@ def rule_is_even_5(state: Nim):
             return Nimply(index_r,5)
     return None   
 
+def rule_is_even_max(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 == 0 and row > 0:
+            return Nimply(index_r,row)
+    return None   
+
 #take the first row you find with odd number of remaining matches
 def rule_is_odd(state: Nim):
     for index_r,row in enumerate(state.rows):
@@ -69,6 +75,13 @@ def rule_is_odd_5(state: Nim):
             return Nimply(index_r,5)
 
     return None 
+
+def rule_is_odd_max(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row % 2 != 0 and row > 0:
+            return Nimply(index_r,row)
+
+    return None 
 #take the first row you find with a prime number of remaining matches
 def rule_is_prime(state: Nim):
     for index_r,row in enumerate(state.rows):
@@ -98,6 +111,12 @@ def rule_is_prime_5(state: Nim):
     for index_r,row in enumerate(state.rows):
         if row > 1 and is_prime(row) and row > 4:
             return Nimply(index_r,5)
+    return None
+
+def rule_is_prime_max(state: Nim):
+    for index_r,row in enumerate(state.rows):
+        if row > 1 and is_prime(row) and row > 0:
+            return Nimply(index_r,row)
     return None  
 
 #Take the first row you find with a perfect square number of remaining matches
@@ -131,6 +150,12 @@ def rule_is_perfect_square_5(state: Nim):
             return Nimply(index_r,5)
     return None
 
+def rule_is_perfect_square_max(state : Nim):
+    for index_r,row in enumerate(state.rows):
+        if is_perfect_square(row) and row > 0:
+            return Nimply(index_r,row)
+    return None
+
 #take the first row you find with a multiple of 3 and multiple of 5 remaining matches
 def rule_is_multiple_of_3_and_5(state: Nim):
     for index_r,row in enumerate(state.rows):
@@ -146,13 +171,57 @@ def rule_is_multiple_of_golden_ratio(state: Nim):
             return Nimply(index_r,1)
     return None
 
-# #Take the first row you find with the highest ratio of remaining matches to total matches
-# def rule_highest_ratio(state: Nim):
-#     for index_r,row in enumerate(state.rows):
-#         if row != 0:
-#             ratio = row / sum(state.rows)
-#             return Nimply(index_r,1)
-#     return None
+#row with the highest ratio
+def rule_highest_ratio(state: Nim):
+    if not state.rows:
+        return None
+
+    max_ratio = 0
+    max_ratio_row = None
+
+    for index_r, row in enumerate(state.rows):
+        if row > 0:
+            ratio = row / sum(state.rows)
+            if ratio > max_ratio:
+                max_ratio = ratio
+                max_ratio_row = Nimply(index_r, 1)
+
+    return max_ratio_row
+
+def rule_highest_remaining_matches(state: Nim):
+    if not state.rows:
+        return None
+
+    max_row = state.rows[0]
+    max_row_index = 0
+    move = None
+
+    for index_r, row in enumerate(state.rows):
+        if row > max_row and row > 0:
+            max_row = row
+            max_row_index = index_r
+            move = Nimply(max_row_index, max_row)
+
+    return move
+
+
+def rule_lowest_remaining_matches(state: Nim):
+    if not state.rows:
+        return None
+
+    min_row = state.rows[0]
+    min_row_index = 0
+    move = None
+    
+    for index_r, row in enumerate(state.rows):
+        if row < min_row and row > 0:
+            min_row = row
+            min_row_index = index_r
+            move = Nimply(min_row_index, min_row)
+
+    return move
+
+
 
 # #Take the first row you find with the lowest difference between remaining matches and the number of matches that the opponent can remove in a turn
 # def rule_lowest_difference(state: Nim):

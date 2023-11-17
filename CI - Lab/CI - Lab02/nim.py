@@ -52,3 +52,29 @@ def play_game(strategy):
     #logging.info(f"status: Player {player} won!") 
  
     return Results(player, turns)
+
+def play_game2(strategy): 
+    #logging.getLogger().setLevel(logging.INFO) 
+ 
+    nim = Nim(5) 
+    #logging.info(f"init : {nim}") 
+    player = 0 
+ 
+    # 'turns' count the number of turns the match last (It's a good metric to use for the fitness) 
+    turns = 0 
+ 
+    # number of sticks moved by oppo in the entire game 
+    #sticks_oppo = 0 
+    while nim: 
+        ply = strategy[player](nim) 
+        #sticks_oppo += ply.num_objects 
+        #logging.info(f"ply: player {strategy[player]} plays {ply}") 
+        nim.nimming(ply) 
+        #logging.info(f"status: {nim}") 
+        # A new turn starts when the playes has done the first move plays again 
+        if player == 0: 
+            turns += 1 
+        player = 1 - player 
+    #logging.info(f"status: Player {strategy[player]} won!") 
+ 
+    return player

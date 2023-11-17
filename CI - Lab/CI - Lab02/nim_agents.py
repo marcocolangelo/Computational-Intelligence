@@ -42,61 +42,32 @@ class NimAgent:
            possibles.append(ply)
         return possibles
 
-    def choose_move(self, state:Nim) -> Nimply: 
-        # Calcola la probabilità di ogni regola. 
-        # probabilities = [] 
-        # for rule, weight in zip(self.rules, self.weights): 
-        #     probabilities.append(weight * self.probability(state)) 
- 
-        # Scegli una regola in base alle probabilità. 
-         
-        np_weights = np.array(self.weights) 
- 
-        # @Blurryface 
-        # Implemento la roulette wheel selection 
-        tot_sum = np.sum(np_weights) 
-        # passso da peso a probabilità 
-        probs = list() 
-        cumulative_probs = list() 
-        for w in self.weights: 
-            probs.append(w/tot_sum) 
-            # calcolo la probabilità comulativa associata ad ogni peso 
-            cumulative_probs.append(np.sum(probs)) 
-        # Adesso devo selezionare un peso casualmente e utilizzare il suo indice per scegliere la regola corrispondente 
-        # Ovviamente circolo fino a quando la regola selezionata è applicabile 
-        move = None 
-        while move is None: 
-            r = random.random() # tra 0.0 e 1.0 
-            index = None 
-            for i,p in enumerate(cumulative_probs): 
-                if r <= p: 
-                    index = i 
-                    break 
-            ply = self.rules[index](state) 
-            if ply != None: 
-                move = ply 
- 
- 
-        """ Commentato perché ho implementato roulette wheel 
-         
-        indices = np.argsort(np_weights) 
- 
-        w_rules = self.rules[indices] 
- 
-        move = None 
-        for rule in w_rules: 
-            ply = rule(state) 
-            if ply != None: 
-                move = ply 
-                break 
-        """ 
-                 
-        if move == None: 
-            # possible_moves = self.analize(state)        #verify which move is feasible according to the current Nim state 
-            # if len(possible_moves) == 0: 
-            #     print(f"No possible moves for player {self.name}, something went wrong") 
-            move = pure_random(state) 
- 
+    def choose_move(self, state:Nim) -> Nimply:
+        # Calcola la probabilità di ogni regola.
+        # probabilities = []
+        # for rule, weight in zip(self.rules, self.weights):
+        #     probabilities.append(weight * self.probability(state))
+
+        # Scegli una regola in base alle probabilità.
+        
+        np_weights = np.array(self.weights)
+        indices = np.argsort(np_weights)
+
+        w_rules = self.rules[indices]
+
+        move = None
+        for rule in w_rules:
+            ply = rule(state)
+            if ply != None:
+                move = ply
+                break
+                
+        if move == None:
+            # possible_moves = self.analize(state)        #verify which move is feasible according to the current Nim state
+            # if len(possible_moves) == 0:
+            #     print(f"No possible moves for player {self.name}, something went wrong")
+            move = pure_random(state)
+
         return move
     
     def setFitness(self,value):

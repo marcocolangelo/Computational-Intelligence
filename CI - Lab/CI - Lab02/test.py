@@ -14,7 +14,7 @@ def test():
     λ = 1
     σ = 0.001
     μ = 1
-    STEPS = 1000
+    STEPS = 100
     # Specifica la lista di regole.
 
     #test1
@@ -201,40 +201,55 @@ def test():
 ]
     
      
-    weights9 = [ 2.87012174 ,-2.55079735  ,4.56963831,  0.47238144,  1.58823817,  4.71175884,
-  1.05888506, -9.64781183 ,16.48161889 ,-9.93387607 , 3.47595983  ,1.55189889,
-  6.15702085 ,-5.68410714 ,-0.61758665 , 6.10335951, 13.73857479  ,0.56824887,
-  2.75321229, 10.13502211, -7.23085029 , 7.1954275 ]
-    
+    weights9 =  [92.95735525729914, 16.80060384360386, -1.8301953355352594, -12.866204984664119, 82.69336513645119, -48.236898305848634, -4.8281297177635825, 80.3629980555464, 52.89743460774294, -91.90504449014058, -58.0090646982755]
     rules9 = [
         rs.rule_is_even,
-        rs.rule_is_even_2,
-        rs.rule_is_even_3,
-        rs.rule_is_even_4,
-        rs.rule_is_even_5,
+        rs.rule_is_even_max,
         rs.rule_is_odd,
-        rs.rule_is_odd_2,
-        rs.rule_is_odd_3,
-        rs.rule_is_odd_4,
-        rs.rule_is_odd_5,
+        rs.rule_is_odd_max,
         rs.rule_is_perfect_square,
-        rs.rule_is_perfect_square_2,
-        rs.rule_is_perfect_square_3,
-        rs.rule_is_perfect_square_4,
-        rs.rule_is_perfect_square_5,
+        rs.rule_is_perfect_square_max,
         rs.rule_is_prime,
-        rs.rule_is_prime_2,
-        rs.rule_is_prime_3,
-        rs.rule_is_prime_4,
-        rs.rule_is_prime_5,
-        rs.rule_is_multiple_of_3_and_5,
-        rs.rule_is_multiple_of_golden_ratio
+        rs.rule_is_prime_max,
+        rs.rule_highest_ratio,
+        rs.rule_highest_remaining_matches,
+        rs.rule_lowest_remaining_matches
     ]
 
+    weights10 = [198.29064288540619, 79.5460039954491, -58.45404274241085, -94.3423753600089, 38.4512122260916, -59.83565390892052, -62.96102210606701, -115.55778595199456, 16.355087547483567, -120.66257440522672, -109.44218338231046, 43.02472726987027]
+    rules10 = [
+        rs.rule_is_even,
+        rs.rule_is_even_max,
+        rs.rule_is_odd,
+        rs.rule_is_odd_max,
+        rs.rule_is_perfect_square,
+        rs.rule_is_perfect_square_max,
+        rs.rule_is_prime,
+        rs.rule_is_prime_max,
+        rs.rule_highest_ratio,
+        rs.rule_highest_remaining_matches,
+        rs.rule_lowest_remaining_matches,
+        optimal
+    ]
+
+    weigths11 = [0.32430197423522733, -0.11529041447941335, 0.44751195694898044, 0.5815809206623787, 0.5669262476354358, 0.5887738596093689, 0.35659745434435, 0.06089183504580325, 0.5594703175787873, 0.4521103432032254, 0.44573953474263056]
+    rules11 = [
+            rs.rule_is_even,
+            rs.rule_is_even_max,
+            rs.rule_is_odd,
+            rs.rule_is_odd_max,
+            rs.rule_is_perfect_square,
+            rs.rule_is_perfect_square_max,
+            rs.rule_is_prime,
+            rs.rule_is_prime_max,
+            rs.rule_highest_ratio,
+            rs.rule_highest_remaining_matches,
+            rs.rule_lowest_remaining_matches,
+        ]
     # Inizializza la popolazione di agenti con pesi casauli per ogni regola
 
     #actually test2 config is the best one
-    player1 = NimAgent(f"Agent 2",np.array(rules), weights,σ)
+    player1 = NimAgent(f"Agent 2",np.array(rules11), weigths11,σ)
     player2 =  NimAgent(f"Agent 1",np.array(rules), weights,σ)
    
     agents = AgentsVec([optimal])
@@ -245,7 +260,7 @@ def test():
     win_counter = 0
 
     # Esegui l'algoritmo evolutivo per 1_000_000 // λ generazioni.
-    for step in range(STEPS // λ):
+    for step in range(STEPS ):
         fit_vec = []
 
         # #after each 1/3 of the 

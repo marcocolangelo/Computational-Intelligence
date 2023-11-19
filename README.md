@@ -8,5 +8,5 @@ Is the repository where the professor can find the several laboratories complete
 Here copies of the professor's codes are saved
 
 ## CI - Works
-Repository with sketch of general code inherent to the CI course
+Repository with sketches of general code inherent to the CI course
 

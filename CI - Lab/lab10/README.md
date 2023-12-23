@@ -2,7 +2,7 @@
 This repository contains the implementation of a Tic Tac Toe game using `Q-learning` with `Prioritized Experience Replay (PER)` for reinforcement learning. The code is written in Python and utilizes the NumPy library for matrix operations.
 
 ## Overview
-The Tic Tac Toe game is implemented as an environment where an agent learns to play against an opponent. The Q-learning algorithm is used to update the Q-values for each state-action pair, allowing the agent to make better decisions over time. The implementation also includes Prioritized Experience Replay to improve learning efficiency.
+The Tic Tac Toe game is implemented as an environment where an agent learns to play against an opponent. The Q-learning algorithm is used to update the Q-values for each state-action pair, allowing the agent to make better decisions over time. The implementation also includes Prioritized Experience Replay to improve learning efficiency. The `eps` variable changes during the training phase according to the accuracy trend, so the model can choose between more `EXPLOITATION` or `EXPLORATION`.
 
 ## Classes and Functions
 - Memory Class (memory.py)
@@ -41,6 +41,9 @@ Accuracy has been used as metric
 - up to 95% if the my_Agent starts the game (on 100 matches)
 - up to 70% is the oppositor starts the game (on 100 matches)
 - up to 85% for randomic order (on 100 matches)
+
+## Limitations
+The model was trained for only `25,000` iterations, but the accuracy curve plotted shows some room for potential improvement if more iterations were added.
 
 You can find other details looking at the code, it's full of comments
 

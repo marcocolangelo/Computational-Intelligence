@@ -171,8 +171,8 @@ class MonteCarloTreeSearchNode():
         self.children = []                   # It contains the children nodes
         self._number_of_visits = 0           # Number of times current node is visited
         self._results = defaultdict(int)     
+        self._results[0] = 0
         self._results[1] = 0
-        self._results[-1] = 0
         self.player_id = player_id           # The player who is going to carry out the move
         self._untried_actions = None
         self._untried_actions = self.untried_actions() # all possible moves from the current_state for player_id
@@ -187,8 +187,8 @@ class MonteCarloTreeSearchNode():
 
     # Returns the difference of wins/losses
     def q(self):
-        wins = self._results[1]
-        loses = self._results[-1]
+        wins = self._results[0]
+        loses = self._results[1]
         return wins - loses
     
 
@@ -213,6 +213,10 @@ class MonteCarloTreeSearchNode():
         return False
     
 
+    def rollout_policy(self, possible_moves):
+        return possible_moves[np.random.randint(len(possible_moves))]
+
+
     # Corrisponde alla funzione di simulation nella implementazione precedente
     def rollout(self):
         current_rollout_state = self.state
@@ -223,5 +227,48 @@ class MonteCarloTreeSearchNode():
             action = self.rollout_policy(possible_moves)
             current_rollout_state = current_rollout_state.move(action)
         # deve tornare il risultato del gioco (potrei utilizzare la stessa check_winner)
-        return current_rollout_state.game_result()
+        return current_rollout_state.check_winner()
+    
+
+    # In this step all the statistics for the nodes are updated. Untill the parent node is reached, 
+    # the number of visits for each node is incremented by 1. If the result is 1, that is it 
+    # resulted in a win, then the win is incremented by 1. Otherwise if result is a loss, 
+    # then loss is incremented by 1.
+    def backpropagate(self, result):
+        self._number_of_visits += 1.
+        self._results[result] += 1.
+        if self.parent:
+            self.parent.backpropagate(result)
+
+    
+    def is_fully_expanded(self):
+        return len(self._untried_actions) == 0
+    
+    # Credo sia la UCB equation
+    def best_child(self, c_param=0.1):
+        choices_weights = [(c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n())) 
+                           for c in self.children]
+        return self.children[np.argmax(choices_weights)]
+    
+    # Selects node to run rollout
+    def _tree_policy(self):
+        current_node = self
+        while not current_node.is_terminal_node():
+            
+            if not current_node.is_fully_expanded():
+                return current_node.expand()
+            else:
+                current_node = current_node.best_child()
+        return current_node
+    
+    # This is the best action function which returns the node corresponding to best possible move. 
+    # The step of expansion, simulation and backpropagation are carried out by this function
+    def best_action(self):
+        simulation_no = 100
+        for i in range(simulation_no):
+            v = self._tree_policy()
+            reward = v.rollout()
+            v.backpropagate(reward)
+        
+        return self.best_child(c_param=0.)
     

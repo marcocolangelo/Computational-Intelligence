@@ -1,21 +1,30 @@
+from copy import deepcopy
 import math
+import random
+
+import numpy as np
 from game import Game, Move
+import itertools
 
 
 import math
 
 
 class TreeNode:
-    def __init__(self, game_state):
+    def __init__(self, game_state, player_id):
         self.game_state = game_state
         self.visits = 0
         self.reward_sum = 0
         self.children = []
+        self.player_id = player_id # Rappresenta il player che fa la mossa e crea lo stato per il nuovo figlio
+
 
 
 class MonteCarloTree:
-    def __init__(self, root_state):
+    # num_child è un hyperparameter
+    def __init__(self, root_state, num_child):
         self.root = TreeNode(root_state)
+        self.n = num_child
 
     def select_node(self, current_node):
         # Implement the node selection using the UCB equation
@@ -28,14 +37,28 @@ class MonteCarloTree:
                 selected_node = child
         return selected_node
 
+    # Considerando game_state come una board
     def expand_node(self, parent_node):
         # Add child nodes representing possible moves from the current state
-        possible_moves = parent_node.game_state.get_possible_moves()
+        possible_moves = self._get_possible_moves(parent_node.player_id,parent_node.game_state)
+        possible_moves = random.sample(possible_moves, self.n)
+        # might be better choose just one random move
         for move in possible_moves:
             from_pos, slide = move
-            new_state = parent_node.game_state.get_board()
-            new_state.play(from_pos, slide)
-            new_node = TreeNode(new_state)
+            new_board = deepcopy(parent_node.game_state)
+            new_board[from_pos] = parent_node.player_id # corrisponde al _take di game
+            axis_0, axis_1 = from_pos
+            # np.roll performs a rotation of the element of a 1D ndarray
+            if slide == Move.RIGHT:
+                new_board[axis_0] = np.roll(new_board[axis_0], -1)
+            elif slide == Move.LEFT:
+                new_board[axis_0] = np.roll(new_board[axis_0], 1)
+            elif slide == Move.BOTTOM:
+                new_board[:, axis_1] = np.roll(new_board[:, axis_1], -1)
+            elif slide == Move.TOP:
+                new_board[:, axis_1] = np.roll(new_board[:, axis_1], 1)
+            p_id = (parent_node.player_id + 1) % 2
+            new_node = TreeNode(new_board, p_id)
             parent_node.children.append(new_node)
 
     def simulate(self, node):
@@ -74,6 +97,39 @@ class MonteCarloTree:
             reward = self.simulate(leaf_node)
             self.backpropagate(leaf_node, reward)
 
+    def __acceptable_slides(from_position: tuple[int, int]):
+        """When taking a piece from {from_position} returns the possible moves (slides)"""
+        acceptable_slides = [Move.BOTTOM, Move.TOP, Move.LEFT, Move.RIGHT]
+        axis_0 = from_position[0]    # axis_0 = 0 means uppermost row
+        axis_1 = from_position[1]    # axis_1 = 0 means leftmost column
+
+        if axis_0 == 0:  # can't move upwards if in the top row...
+            acceptable_slides.remove(Move.TOP)
+        elif axis_0 == 4:
+            acceptable_slides.remove(Move.BOTTOM)
+
+        if axis_1 == 0:
+            acceptable_slides.remove(Move.LEFT)
+        elif axis_1 == 4:
+            acceptable_slides.remove(Move.RIGHT)
+        return acceptable_slides
+
+
+    # Implementazione di get_possible_moves come metodo privato
+    def _get_possible_moves(self, player_id, board):
+        from_all_possible_pos = list(itertools.product(list(range(5)), repeat=2))
+        possible_moves = []
+        for from_pos in from_all_possible_pos:
+            row, col = from_pos
+            from_border = row in (0, 4) or col in (0, 4)
+            if not from_border:
+                continue  # the cell is not in the border
+            if board[from_pos] != player_id and board[from_pos] != -1:
+                continue  # the cell belongs to the opponent
+            accettable_slides = self.__acceptable_slides(tuple([row,col]))
+            for slide in accettable_slides:
+                possible_moves.append(tuple([row,col]), slide)
+        return possible_moves
 
 def main():
     # Initialize the Monte Carlo tree

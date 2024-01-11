@@ -125,6 +125,7 @@ class Game(object):
 
     def __slide(self, from_pos: tuple[int, int], slide: Move) -> bool:
         '''Slide the other pieces'''
+<<<<<<< Updated upstream
         # define the corners
         SIDES = [(0, 0), (0, 4), (4, 0), (4, 4)]
         # if the piece position is not in a corner
@@ -202,3 +203,18 @@ class Game(object):
                 # move the piece down
                 self._board[(self._board.shape[0] - 1, from_pos[1])] = piece
         return acceptable
+=======
+        if slide not in self.__acceptable_slides(from_pos):
+            return False  # consider raise ValueError('Invalid argument value')
+        axis_0, axis_1 = from_pos
+        # np.roll performs a rotation of the element of a 1D ndarray
+        if slide == Move.RIGHT:
+            self._board[axis_0] = np.roll(self._board[axis_0], -1)
+        elif slide == Move.LEFT:
+            self._board[axis_0] = np.roll(self._board[axis_0], 1)
+        elif slide == Move.BOTTOM:
+            self._board[:, axis_1] = np.roll(self._board[:, axis_1], -1)
+        elif slide == Move.TOP:
+            self._board[:, axis_1] = np.roll(self._board[:, axis_1], 1)
+        return True
+>>>>>>> Stashed changes

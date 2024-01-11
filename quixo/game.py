@@ -31,6 +31,11 @@ class Player(ABC):
         return values: this method shall return a tuple of X,Y positions and a move among TOP, BOTTOM, LEFT and RIGHT
         '''
         pass
+ 
+    
+
+
+        
 
 
 class Game(object):

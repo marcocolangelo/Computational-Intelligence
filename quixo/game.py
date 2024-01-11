@@ -26,7 +26,7 @@ class MonteCarloPlayer(Player):
         '''
         pass
  
-    
+# Ciao
 
 
         

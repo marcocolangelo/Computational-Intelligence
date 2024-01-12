@@ -160,7 +160,7 @@ from board import Board
 
 
 class MonteCarloTreeSearchNode():
-    def __init__(self, state: Board, player_id, parent=None, parent_action=None):
+    def __init__(self, state: Board, player_id, d, id, parent=None, parent_action=None):
         self.state = state                   # The state of the board
         self.parent = parent                 # Parent node
         self.parent_action = parent_action   # None for the root node and for other nodes it is equal 
@@ -171,14 +171,18 @@ class MonteCarloTreeSearchNode():
         self._results[0] = 0
         self._results[1] = 0
         self.player_id = player_id           # The player who is going to carry out the move
-        self._untried_actions = None
+        #self._untried_actions = None
         self._untried_actions = self.untried_actions() # all possible moves from the current_state for player_id
+
+        # info per debugging
+        self.depth = d
+        self.id = id      # numero del figlio
         return
 
 
     # Returns the list of untried actions from a given state  
     def untried_actions(self):
-        self._untried_actions = self.state.get_legal_actions()
+        self._untried_actions = self.state.get_legal_actions(self.player_id)
         return self._untried_actions
     
 
@@ -198,8 +202,8 @@ class MonteCarloTreeSearchNode():
         # Applico la mossa
         next_state = deepcopy(self.state)
         next_state.move(action, self.player_id)
-        p_id = (p_id + 1) % 2
-        child_node = MonteCarloTreeSearchNode(next_state, p_id, parent=self, parent_action=action)
+        p_id = 1 - p_id
+        child_node = MonteCarloTreeSearchNode(next_state, p_id, self.depth+1, len(self.children)+1, parent=self, parent_action=action)
         self.children.append(child_node)
         return child_node
     
@@ -216,13 +220,15 @@ class MonteCarloTreeSearchNode():
 
     # Corrisponde alla funzione di simulation nella implementazione precedente
     def rollout(self):
-        current_rollout_state = self.state
-        
+        current_rollout_state = deepcopy(self.state)
+        p_id = self.player_id
         while current_rollout_state.check_winner() == -1:
-            possible_moves = current_rollout_state.get_legal_actions()
+            possible_moves = current_rollout_state.get_legal_actions(p_id)
             # seleziona randomicamente l'azione
             action = self.rollout_policy(possible_moves)
-            current_rollout_state = current_rollout_state.move(action)
+            current_rollout_state.move(action, p_id)
+            #current_rollout_state.printami()
+            p_id = 1 - p_id
         # deve tornare il risultato del gioco (potrei utilizzare la stessa check_winner)
         return current_rollout_state.check_winner()
     
@@ -262,10 +268,22 @@ class MonteCarloTreeSearchNode():
     # The step of expansion, simulation and backpropagation are carried out by this function
     def best_action(self):
         simulation_no = 100
-        for i in range(simulation_no):
+        for _ in range(simulation_no):
             v = self._tree_policy()
+            print(v)
             reward = v.rollout()
             v.backpropagate(reward)
         
         return self.best_child(c_param=0.)
+    
+    def __str__(self):
+        ascii_val = 65 # corrisponde ad A
+        return f'Nodo {chr(ascii_val+self.depth) + str(self.id)}'
+
+    
+    def main():
+        root = MonteCarloTreeSearchNode(Board(), 0, 0, 0)
+        selected_node = root.best_action()
+        print('Il nodo selezionato è il seguente: ', selected_node)
+        return 
     

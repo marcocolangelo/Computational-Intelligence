@@ -4,7 +4,9 @@ from enum import Enum
 import numpy as np
 
 # Rules on PDF
-
+class Player():
+    def __init__(self):
+        self.p = 1
 
 class Move(Enum):
     TOP = 0
@@ -88,6 +90,7 @@ class Game(object):
             while not ok:
                 from_pos, slide = players[current_player_idx].make_move(self)
                 ok = self.__move(from_pos, slide, current_player_idx)
+            self.print()
             winner = self.check_winner()
         return winner
 
@@ -100,41 +103,57 @@ class Game(object):
         prev_value = deepcopy(self._board[(from_pos[1], from_pos[0])])
         acceptable = self.__take((from_pos[1], from_pos[0]), player_id)
         if acceptable:
-            acceptable = self.__slide((from_pos[1], from_pos[0]), slide)
+            acceptable = self.__slide((from_pos[1], from_pos[0]), slide, player_id)
             if not acceptable:
                 self._board[(from_pos[1], from_pos[0])] = deepcopy(prev_value)
         return acceptable
 
     def __take(self, from_pos: tuple[int, int], player_id: int) -> bool:
-        '''Take piece'''
-        # acceptable only if in border
-        acceptable: bool = (
-            # check if it is in the first row
-            (from_pos[0] == 0 and from_pos[1] < 5)
-            # check if it is in the last row
-            or (from_pos[0] == 4 and from_pos[1] < 5)
-            # check if it is in the first column
-            or (from_pos[1] == 0 and from_pos[0] < 5)
-            # check if it is in the last column
-            or (from_pos[1] == 4 and from_pos[0] < 5)
-            # and check if the piece can be moved by the current player
-        ) and (self._board[from_pos] < 0 or self._board[from_pos] == player_id)
-        if acceptable:
-            self._board[from_pos] = player_id
-        return acceptable
+        """Checks that {from_pos} is in the border and marks the cell with {player_id}"""
+        row, col = from_pos
+        from_border = row in (0, 4) or col in (0, 4)
+        if not from_border:
+            return False  # the cell is not in the border
+        if self._board[from_pos] != player_id and self._board[from_pos] != -1:
+            return False  # the cell belongs to the opponent
+        #self._board[from_pos] = player_id
+        return True
+    
 
-    def __slide(self, from_pos: tuple[int, int], slide: Move) -> bool:
+    def __acceptable_slides(self, from_position: tuple[int, int]):
+        """When taking a piece from {from_position} returns the possible moves (slides)"""
+        acceptable_slides = [Move.BOTTOM, Move.TOP, Move.LEFT, Move.RIGHT]
+        axis_0 = from_position[0]    # axis_0 = 0 means uppermost row
+        axis_1 = from_position[1]    # axis_1 = 0 means leftmost column
+
+        if axis_0 == 0:  # can't move upwards if in the top row...
+            acceptable_slides.remove(Move.TOP)
+        elif axis_0 == 4:
+            acceptable_slides.remove(Move.BOTTOM)
+
+        if axis_1 == 0:
+            acceptable_slides.remove(Move.LEFT)
+        elif axis_1 == 4:
+            acceptable_slides.remove(Move.RIGHT)
+        return acceptable_slides
+    
+
+    def __slide(self, from_pos: tuple[int, int], slide: Move, p_id) -> bool:
         '''Slide the other pieces'''
         if slide not in self.__acceptable_slides(from_pos):
             return False  # consider raise ValueError('Invalid argument value')
         axis_0, axis_1 = from_pos
         # np.roll performs a rotation of the element of a 1D ndarray
         if slide == Move.RIGHT:
-            self._board[axis_0] = np.roll(self._board[axis_0], -1)
+            self._board[axis_0, axis_1:] = np.roll(self._board[axis_0, axis_1:], -1)
+            self._board[axis_0, 4] = p_id
         elif slide == Move.LEFT:
-            self._board[axis_0] = np.roll(self._board[axis_0], 1)
+            self._board[axis_0, 0:axis_1+1] = np.roll(self._board[axis_0, 0:axis_1+1], 1)
+            self._board[axis_0, 0] = p_id
         elif slide == Move.BOTTOM:
-            self._board[:, axis_1] = np.roll(self._board[:, axis_1], -1)
+            self._board[axis_0:, axis_1] = np.roll(self._board[axis_0:, axis_1], -1)
+            self._board[4, axis_1] = p_id
         elif slide == Move.TOP:
-            self._board[:, axis_1] = np.roll(self._board[:, axis_1], 1)
+            self._board[:axis_0+1, axis_1] = np.roll(self._board[:axis_0+1, axis_1], 1)
+            self._board[0, axis_1] = p_id
         return True

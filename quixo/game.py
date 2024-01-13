@@ -18,14 +18,15 @@ class Move(Enum):
 
 ## MonteCarlo Fist Visit approach
 class MonteCarloPlayer(Player):
-    def __init__(self,root : MonteCarloTreeSearchNode, num_simulations = 100) -> None:
+    def __init__(self,root : MonteCarloTreeSearchNode, num_simulations = 100, c_param = 0.1) -> None:
             self.root = root
             self.num_simulations = num_simulations
+            self.c_param = c_param
             
 
     @abstractmethod
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
-        root = MonteCarloTreeSearchNode(Board(game.get_board()), 0, 0, 0,num_simulations=self.num_simulations)
+        root = MonteCarloTreeSearchNode(Board(game.get_board()), 0, 0, 0,num_simulations=self.num_simulations, c_param=self.c_param)
         selected_node = root.best_action()
         from_pos, move = selected_node.parent_action
         #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)

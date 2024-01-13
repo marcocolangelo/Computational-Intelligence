@@ -289,11 +289,11 @@ class MonteCarloTreeSearchNode():
         return f'Nodo {chr(ascii_val+self.depth) + str(self.id)}'
 
     
-    def main():
-        root = MonteCarloTreeSearchNode(Board(), 0, 0, 0)
-        selected_node = root.best_action()
-        from_pos, move = selected_node.parent_action
-        print('Il nodo selezionato è il seguente: ', selected_node)
-        print(f"from_pos: {from_pos}, move: {move}")
-        return 
+    # def main():
+    #     root = MonteCarloTreeSearchNode(Board(), 0, 0, 0)
+    #     selected_node = root.best_action()
+    #     from_pos, move = selected_node.parent_action
+    #     print('Il nodo selezionato è il seguente: ', selected_node)
+    #     print(f"from_pos: {from_pos}, move: {move}")
+    #     return 
     

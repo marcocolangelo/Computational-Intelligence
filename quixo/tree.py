@@ -159,13 +159,14 @@ from copy import deepcopy
 from board import Board
 
 
+
 class MonteCarloTreeSearchNode():
-    def __init__(self, state: Board, player_id, d, id, parent=None, parent_action=None):
-        self.state = state                   # The state of the board
-        self.parent = parent                 # Parent node
+    def __init__(self, state: Board, player_id, d, id, parent : 'MonteCarloTreeSearchNode' = None, parent_action=None, num_simulations=100, c_param=0.1):
+        self.state : Board = state                   # The state of the board
+        self.parent : MonteCarloTreeSearchNode = parent                 # Parent node
         self.parent_action = parent_action   # None for the root node and for other nodes it is equal 
                                              # to the action which it’s parent carried out
-        self.children = []                   # It contains the children nodes
+        self.children: list[MonteCarloTreeSearchNode] = []  # It contains the children nodes
         self._number_of_visits = 0           # Number of times current node is visited
         self._results = defaultdict(int)     
         self._results[0] = 0
@@ -177,12 +178,17 @@ class MonteCarloTreeSearchNode():
         # info per debugging
         self.depth = d
         self.id = id      # numero del figlio
+
+        # hyperparameters (aggiunti da Marco)
+        self.num_simulations = num_simulations  # number of simulations
+        self.c_param = c_param  # exploration/exploitation tradeoff
         return
 
 
     # Returns the list of untried actions from a given state  
     def untried_actions(self):
         self._untried_actions = self.state.get_legal_actions(self.player_id)
+        #print(self._untried_actions)
         return self._untried_actions
     
 
@@ -202,8 +208,8 @@ class MonteCarloTreeSearchNode():
         # Applico la mossa
         next_state = deepcopy(self.state)
         next_state.move(action, self.player_id)
-        p_id = 1 - p_id
-        child_node = MonteCarloTreeSearchNode(next_state, p_id, self.depth+1, len(self.children)+1, parent=self, parent_action=action)
+        p_id = 1 - self.player_id  # prima era p_id = 1 - p_id e non funzionava per cui ho cambiato come vedi qui
+        child_node = MonteCarloTreeSearchNode(next_state, p_id, self.depth+1, len(self.children)+1, parent=self, parent_action=action, num_simulations=self.num_simulations, c_param=self.c_param)
         self.children.append(child_node)
         return child_node
     
@@ -247,7 +253,7 @@ class MonteCarloTreeSearchNode():
     def is_fully_expanded(self):
         return len(self._untried_actions) == 0
     
-    # Credo sia la UCB equation
+    # Credo sia la UCB equation (confermo che è la UCB equation (by Marco))
     def best_child(self, c_param=0.1):
         choices_weights = [(c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n())) 
                            for c in self.children]
@@ -267,14 +273,16 @@ class MonteCarloTreeSearchNode():
     # This is the best action function which returns the node corresponding to best possible move. 
     # The step of expansion, simulation and backpropagation are carried out by this function
     def best_action(self):
-        simulation_no = 100
+        simulation_no = self.num_simulations    # l'ho reso un iperparametro così possiamo fare prove con varie configurazioni
         for _ in range(simulation_no):
             v = self._tree_policy()
-            print(v)
+            #print(v)
             reward = v.rollout()
             v.backpropagate(reward)
         
-        return self.best_child(c_param=0.)
+        # non mi convince la scelta di mettere c_param = 0 quindi l'ho reso un iperparametro e provato a metterlo a 0.1
+            # valutiamo la scelta di farlo variare nel tempo per favorire più l'exploration all'inizio e più la exploitation alla fine
+        return self.best_child(c_param = self.c_param)
     
     def __str__(self):
         ascii_val = 65 # corrisponde ad A
@@ -284,6 +292,8 @@ class MonteCarloTreeSearchNode():
     def main():
         root = MonteCarloTreeSearchNode(Board(), 0, 0, 0)
         selected_node = root.best_action()
+        from_pos, move = selected_node.parent_action
         print('Il nodo selezionato è il seguente: ', selected_node)
+        print(f"from_pos: {from_pos}, move: {move}")
         return 
     

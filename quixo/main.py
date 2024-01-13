@@ -1,5 +1,6 @@
 import random
-from game import Game, Move, Player
+from game import Game, MonteCarloPlayer, Move, Player
+from board import Board
 from tree import MonteCarloTreeSearchNode
 
 
@@ -24,12 +25,13 @@ class RandomPlayer(Player):
 
 
 if __name__ == '__main__':
-    # g = Game()
-    # g.print()
-    # player1 = RandomPlayer()
-    # player2 = RandomPlayer()
-    # winner = g.play(player1, player2)
-    # g.print()
-    # print(f"Winner: Player {winner}")
-    MonteCarloTreeSearchNode.main()
+    g = Game()
+    g.print()
+    root = MonteCarloTreeSearchNode(Board(), 0, 0, 0, num_simulations=10)
+    player1 = MonteCarloPlayer(root)
+    player2 = RandomPlayer()
+    winner = g.play(player1, player2)
+    g.print()
+    print(f"Winner: Player {winner}")
+    # MonteCarloTreeSearchNode.main()
 

@@ -1,11 +1,21 @@
-from game import Move
+from enum import Enum
 import numpy as np
 import itertools
 import random
 
+
+class Move(Enum):
+    TOP = 0
+    BOTTOM = 1
+    LEFT = 2
+    RIGHT = 3
+
 class Board():
-    def __init__(self):
-        self._board = np.ones((5, 5), dtype=np.uint8) * -1
+    def __init__(self,board=None):
+        if board is not None:
+            self._board = board
+        else:
+            self._board = np.ones((5, 5), dtype=np.uint8) * -1
 
     # Metodo privato al nodo per sapere tutti i possibili movimenti di slide concessi  datta posizione from_position
     def __acceptable_slides(self, from_position: tuple[int, int]):

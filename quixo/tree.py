@@ -161,7 +161,7 @@ from board import Board
 
 
 class MonteCarloTreeSearchNode():
-    def __init__(self, state: Board, player_id, d, id, parent : 'MonteCarloTreeSearchNode' = None, parent_action=None, num_simulations=100, c_param=0.1):
+    def __init__(self, state: Board, player_id, d, id, root_player,parent : 'MonteCarloTreeSearchNode' = None, parent_action=None, num_simulations=100, c_param=0.1):
         self.state : Board = state                   # The state of the board
         self.parent : MonteCarloTreeSearchNode = parent                 # Parent node
         self.parent_action = parent_action   # None for the root node and for other nodes it is equal 
@@ -172,6 +172,8 @@ class MonteCarloTreeSearchNode():
         self._results[0] = 0
         self._results[1] = 0
         self.player_id = player_id           # The player who is going to carry out the move
+        self.root_player = root_player       # The player_id of the root node
+        #print("init di node -> my player_id: ", self.player_id)
         #self._untried_actions = None
         self._untried_actions = self.untried_actions() # all possible moves from the current_state for player_id
 
@@ -194,8 +196,12 @@ class MonteCarloTreeSearchNode():
 
     # Returns the difference of wins/losses
     def q(self):
-        wins = self._results[0]
-        loses = self._results[1]
+        if self.root_player == 0:
+            wins = self._results[0]
+            loses = self._results[1]
+        else:
+            wins = self._results[1]
+            loses = self._results[0]
         return wins - loses
     
 
@@ -209,7 +215,8 @@ class MonteCarloTreeSearchNode():
         next_state = deepcopy(self.state)
         next_state.move(action, self.player_id)
         p_id = 1 - self.player_id  # prima era p_id = 1 - p_id e non funzionava per cui ho cambiato come vedi qui
-        child_node = MonteCarloTreeSearchNode(next_state, p_id, self.depth+1, len(self.children)+1, parent=self, parent_action=action, num_simulations=self.num_simulations, c_param=self.c_param)
+        #print(f"expand -> p_id: {p_id} e self.player_id: {self.player_id}")
+        child_node = MonteCarloTreeSearchNode(state=next_state, player_id=p_id, d=self.depth+1, id=len(self.children)+1,root_player=self.root_player, parent=self, parent_action=action, num_simulations=self.num_simulations, c_param=self.c_param)
         self.children.append(child_node)
         return child_node
     
@@ -228,6 +235,7 @@ class MonteCarloTreeSearchNode():
     def rollout(self):
         current_rollout_state = deepcopy(self.state)
         p_id = self.player_id
+        #print(f"rollout -> self.player_id: {self.player_id}")
         while current_rollout_state.check_winner() == -1:
             possible_moves = current_rollout_state.get_legal_actions(p_id)
             # seleziona randomicamente l'azione
@@ -262,8 +270,8 @@ class MonteCarloTreeSearchNode():
     # Selects node to run rollout
     def _tree_policy(self):
         current_node = self
+        #print(f"Profondita': {current_node.depth} e id: {current_node.id}")
         while not current_node.is_terminal_node():
-            
             if not current_node.is_fully_expanded():
                 return current_node.expand()
             else:
@@ -289,11 +297,15 @@ class MonteCarloTreeSearchNode():
         return f'Nodo {chr(ascii_val+self.depth) + str(self.id)}'
 
     
-    # def main():
-    #     root = MonteCarloTreeSearchNode(Board(), 0, 0, 0)
-    #     selected_node = root.best_action()
-    #     from_pos, move = selected_node.parent_action
-    #     print('Il nodo selezionato è il seguente: ', selected_node)
-    #     print(f"from_pos: {from_pos}, move: {move}")
-    #     return 
+    def main(self):
+        root = MonteCarloTreeSearchNode(Board(),1, 0, 0,root_player=1)
+        selected_node = root.best_action()
+        from_pos, move = selected_node.parent_action
+        #print('Il nodo selezionato è il seguente: ', selected_node)
+        #print(f"from_pos: {from_pos}, move: {move}")
+        return 
+    
+if __name__ == '__main__':  
+    mc = MonteCarloTreeSearchNode(Board(),1, 0, 0,root_player=1)
+    mc.main()
     

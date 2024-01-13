@@ -75,7 +75,6 @@ class Board():
             self._board[0, axis_1] = p_id
 
 
-    # Sembra non tenga in considerazione il pareggio
     def check_winner(self) -> int:
         '''Check the winner. Returns the player ID of the winner if any, otherwise returns -1'''
         # for each row

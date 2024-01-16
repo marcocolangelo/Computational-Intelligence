@@ -185,7 +185,9 @@ class MonteCarloTreeSearchNode():
         self.num_simulations = num_simulations  # number of simulations
         self.c_param = c_param  # exploration/exploitation tradeoff
         return
-
+    
+    def get_results(self):
+        return self._results[0],self._results[1]
 
     # Returns the list of untried actions from a given state  
     def untried_actions(self):

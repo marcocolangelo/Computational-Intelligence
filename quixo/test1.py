@@ -8,6 +8,15 @@ from board import Board
 from tree import MonteCarloTreeSearchNode
 from tree_copy import MonteCarloTreeSearchNodeNoGreedy
 
+class RandomPlayer(Player):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        from_pos = (random.randint(0, 4), random.randint(0, 4))
+        move = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
+        return from_pos, move
+
 ## MonteCarlo Fist Visit approach
 class MonteCarloPlayer2(Player):
     def __init__(self,root : MonteCarloTreeSearchNodeNoGreedy,player_id, num_simulations = 100, c_param = 0.1) -> None:
@@ -15,6 +24,7 @@ class MonteCarloPlayer2(Player):
             self.num_simulations = num_simulations
             self.c_param = c_param
             self.player_id = player_id
+
             
 
     @abstractmethod
@@ -33,11 +43,11 @@ if __name__ == '__main__':
     results = {}
     my_player_id = 0
     players = np.empty(2, dtype=Player)
-    tot = 25
+    tot = 30
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    for ns in [50]:
+    for ns in [10]:
         for cp in [0.1]:
             for cp2 in [0.1]:
                 #wins and matches for accuracy
@@ -53,8 +63,8 @@ if __name__ == '__main__':
 
                     # player initialization -> our player is players[my_player_id]
                     root = MonteCarloTreeSearchNode(state=Board(), player_id=my_player_id, d=0, id=0,root_player=my_player_id, num_simulations=ns,c_param=cp)
-                    players[my_player_id] = MonteCarloPlayer(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp)
-                    players[1 - my_player_id] = MonteCarloPlayer2(root=root, player_id=1-my_player_id,num_simulations=ns, c_param=cp)
+                    players[my_player_id] = MonteCarloPlayer(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp, max_depth=3)
+                    players[1 - my_player_id] = RandomPlayer()
                     
                     # play the game
                     winner = g.play(players[0], players[1])

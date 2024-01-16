@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import os
 import random
 import numpy as np
@@ -5,7 +6,26 @@ import tqdm
 from game import Game, MonteCarloPlayer, Move, Player
 from board import Board
 from tree import MonteCarloTreeSearchNode
+from tree_copy import MonteCarloTreeSearchNodeNoGreedy
 
+## MonteCarlo Fist Visit approach
+class MonteCarloPlayer2(Player):
+    def __init__(self,root : MonteCarloTreeSearchNodeNoGreedy,player_id, num_simulations = 100, c_param = 0.1) -> None:
+            self.root = root
+            self.num_simulations = num_simulations
+            self.c_param = c_param
+            self.player_id = player_id
+            
+
+    @abstractmethod
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        #print(f"make_move -> my player id: {self.player_id}")
+        root = MonteCarloTreeSearchNodeNoGreedy(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,num_simulations=self.num_simulations, c_param=self.c_param)
+        selected_node = root.best_action()
+        from_pos, move = selected_node.parent_action
+        #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
+        #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
+        return from_pos, Move(move.value)
 
 if __name__ == '__main__':
     
@@ -13,13 +33,13 @@ if __name__ == '__main__':
     results = {}
     my_player_id = 0
     players = np.empty(2, dtype=Player)
-    tot = 100
+    tot = 25
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    for ns in [250]:
+    for ns in [50]:
         for cp in [0.1]:
-            for cp2 in [0.2,0.3,0.5]:
+            for cp2 in [0.1]:
                 #wins and matches for accuracy
                 wins = 0
                 matches = 0
@@ -34,7 +54,7 @@ if __name__ == '__main__':
                     # player initialization -> our player is players[my_player_id]
                     root = MonteCarloTreeSearchNode(state=Board(), player_id=my_player_id, d=0, id=0,root_player=my_player_id, num_simulations=ns,c_param=cp)
                     players[my_player_id] = MonteCarloPlayer(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp)
-                    players[1 - my_player_id] = MonteCarloPlayer(root=root, player_id=1-my_player_id,num_simulations=ns, c_param=cp2)
+                    players[1 - my_player_id] = MonteCarloPlayer2(root=root, player_id=1-my_player_id,num_simulations=ns, c_param=cp)
                     
                     # play the game
                     winner = g.play(players[0], players[1])

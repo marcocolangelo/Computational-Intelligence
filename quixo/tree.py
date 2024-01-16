@@ -262,35 +262,40 @@ class MonteCarloTreeSearchNode():
         return len(self._untried_actions) == 0
     
     # Credo sia la UCB equation (confermo che è la UCB equation (by Marco))
-    def best_child(self, c_param=0.1):
+    def best_child(self, c_param=0.1,iter_sim=10):
+        # approccio eps-greedy per la scelta del c_param
+        #print(f"iter_sim: {iter_sim} e num_simulations: {self.num_simulations}")
+        if iter_sim/self.num_simulations < 0.25:
+            #print(f"iter_sim: {iter_sim} e num_simulations: {self.num_simulations}")
+            c_param = self.c_param * 5
         choices_weights = [(c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n())) 
                            for c in self.children]
         return self.children[np.argmax(choices_weights)]
     
     # Selects node to run rollout
-    def _tree_policy(self):
+    def _tree_policy(self, iter_sim):
         current_node = self
         #print(f"Profondita': {current_node.depth} e id: {current_node.id}")
         while not current_node.is_terminal_node():
             if not current_node.is_fully_expanded():
                 return current_node.expand()
             else:
-                current_node = current_node.best_child()
+                current_node = current_node.best_child(c_param = self.c_param,iter_sim=iter_sim)
         return current_node
     
     # This is the best action function which returns the node corresponding to best possible move. 
     # The step of expansion, simulation and backpropagation are carried out by this function
     def best_action(self):
         simulation_no = self.num_simulations    # l'ho reso un iperparametro così possiamo fare prove con varie configurazioni
-        for _ in range(simulation_no):
-            v = self._tree_policy()
+        for i in range(simulation_no):
+            v = self._tree_policy(i)
             #print(v)
             reward = v.rollout()
             v.backpropagate(reward)
         
         # non mi convince la scelta di mettere c_param = 0 quindi l'ho reso un iperparametro e provato a metterlo a 0.1
             # valutiamo la scelta di farlo variare nel tempo per favorire più l'exploration all'inizio e più la exploitation alla fine
-        return self.best_child(c_param = self.c_param)
+        return self.best_child(c_param = self.c_param,iter_sim=simulation_no)
     
     def __str__(self):
         ascii_val = 65 # corrisponde ad A

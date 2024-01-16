@@ -34,11 +34,11 @@ if __name__ == '__main__':
     results = {}
     my_player_id = 0
     players = np.empty(2, dtype=Player)
-    tot = 10
+    tot = 50
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    for ns in [100]:
+    for ns in [10]:
         for cp in [0.1]:
 
             #wins and matches for accuracy
@@ -50,7 +50,7 @@ if __name__ == '__main__':
                 my_player_id = random.randint(0, 1)
                 print(f"my_player_id: {my_player_id}")
                 g = Game()
-                g.print()
+                #g.print()
 
                 # player initialization -> our player is players[my_player_id]
                 root = MonteCarloTreeSearchNode(state=Board(), player_id=my_player_id, d=0, id=0,root_player=my_player_id, num_simulations=ns,c_param=cp)
@@ -59,7 +59,7 @@ if __name__ == '__main__':
                 
                 # play the game
                 winner = g.play(players[0], players[1])
-                g.print()
+                #g.print()
                 print(f"Winner: Player {winner}")
                 matches += 1
 

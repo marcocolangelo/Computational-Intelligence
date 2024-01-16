@@ -96,7 +96,7 @@ class Game(object):
                 from_pos, slide = players[current_player_idx].make_move(self)
                 ok = self.__move(from_pos, slide, current_player_idx)
                 #print(f"In play -> ok: {ok}")
-            self.print()
+            #self.print()
             winner = self.check_winner()
         return winner
 

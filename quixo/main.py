@@ -2,9 +2,10 @@ import os
 import random
 import numpy as np
 import tqdm
-from game import Game, MonteCarloPlayer, Move, Player
+from game import Game, Move, Player
 from board import Board
 from tree import MonteCarloTreeSearchNode
+from minmax import minimax
 
 
 
@@ -12,20 +13,51 @@ class RandomPlayer(Player):
     def __init__(self) -> None:
         super().__init__()
 
-    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+    def make_move(self, game: Game) -> tuple[tuple[int, int], Move]:
         from_pos = (random.randint(0, 4), random.randint(0, 4))
         move = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
         return from_pos, move
 
 
-# class MyPlayer(Player):
-#     def __init__(self) -> None:
-#         super().__init__()
+## MonteCarlo First Visit approach
+class MonteCarloPlayer(Player):
+    def __init__(self,root : MonteCarloTreeSearchNode,player_id, num_simulations = 100, c_param = 0.1) -> None:
+            self.root = root
+            self.num_simulations = num_simulations
+            self.c_param = c_param
+            self.player_id = player_id
+            
 
-#     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
-#         from_pos = (random.randint(0, 4), random.randint(0, 4))
-#         move = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
-#         return from_pos, move
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        #print(f"make_move -> my player id: {self.player_id}")
+        root = MonteCarloTreeSearchNode(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,num_simulations=self.num_simulations, c_param=self.c_param)
+        selected_node = root.best_action()
+        from_pos, move = selected_node.parent_action
+        #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
+        #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
+        return from_pos, move
+    
+
+## MonteCarlo First Visit approach
+class MonteCarloPlayer_minimax(Player):
+    def __init__(self,root : MonteCarloTreeSearchNode,player_id, num_simulations = 100, c_param = 0.1) -> None:
+            self.root = root
+            self.num_simulations = num_simulations
+            self.c_param = c_param
+            self.player_id = player_id
+            
+
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        #print(f"make_move -> my player id: {self.player_id}")
+        root = MonteCarloTreeSearchNode(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,num_simulations=self.num_simulations, c_param=self.c_param)
+        selected_node = minimax(root, 2, float('-inf'), float('+inf'), True)
+        print(f'Mossa scelta con {-selected_node.evaluation()}')
+        # STAMPATI LA BOARD E LA MOSSA CORRISPONDENTE
+
+        from_pos, move = selected_node.parent_action
+        #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
+        #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
+        return from_pos, move
 
 
 if __name__ == '__main__':
@@ -38,7 +70,7 @@ if __name__ == '__main__':
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    for ns in [100]:
+    for ns in [10]:
         for cp in [0.1]:
 
             #wins and matches for accuracy
@@ -48,13 +80,13 @@ if __name__ == '__main__':
             #play tot games
             for i in tqdm.tqdm(range(tot)):
                 my_player_id = random.randint(0, 1)
-                print(f"my_player_id: {my_player_id}")
+                print(f"mmmmy_player_id: {my_player_id}")
                 g = Game()
-                g.print()
+                #g.print()
 
                 # player initialization -> our player is players[my_player_id]
-                root = MonteCarloTreeSearchNode(state=Board(), player_id=my_player_id, d=0, id=0,root_player=my_player_id, num_simulations=ns,c_param=cp)
-                players[my_player_id] = MonteCarloPlayer(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp)
+                root = MonteCarloTreeSearchNode(state=Board(), player_id=my_player_id, d=0, id=0, root_player=my_player_id, num_simulations=ns,c_param=cp)
+                players[my_player_id] = MonteCarloPlayer_minimax(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp)
                 players[1 - my_player_id] = RandomPlayer()
                 
                 # play the game

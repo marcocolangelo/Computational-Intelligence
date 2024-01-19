@@ -43,11 +43,11 @@ if __name__ == '__main__':
     results = {}
     my_player_id = 0
     players = np.empty(2, dtype=Player)
-    tot = 30
+    tot = 100
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    for ns in [10]:
+    for ns in [100]:
         for cp in [0.1]:
             for cp2 in [0.1]:
                 #wins and matches for accuracy

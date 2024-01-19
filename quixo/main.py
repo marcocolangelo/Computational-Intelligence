@@ -69,6 +69,8 @@ if __name__ == '__main__':
                 else:
                     #g.print()
                     losing_board.append(g.get_board())
+                acc  = 100*float(wins)/float(matches)
+                print("accuracy: ",acc )
 
             #print accuracy
             acc  = 100*float(wins)/float(matches)

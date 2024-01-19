@@ -17,8 +17,9 @@ class MiniMax():
 
 
     def minimax(self,state : Board, depth, maximizing_player):
+        # print("minimaxxxxx")
         # Base case: check if the game is over or depth limit reached
-        if depth == 0 or state.check_winner():
+        if depth == 0 or (state.check_winner() != -1):
             # if max depth reached or game is over, run MCTS (if game is over, MCTS will handle it don't worry)
             root = MonteCarloTreeSearchNode(state=state, player_id=self.player_id, d=0, id=0, root_player=self.player_id, num_simulations=self.ns, c_param=self.cp)
             best_action = root.best_action()
@@ -30,33 +31,32 @@ class MiniMax():
 
         # if the player is the maximizing player
         if maximizing_player:
-            self.player_id = 1- self.root_player
             max_eval = float('-inf')
             max_action = None
             # for each legal action in the state we need to create a new state and call the minimax on it with depth - 1 and maximizing_player = False (because we are in the minimizing player then)
-            for action in state.get_legal_actions():
+            for action in state.get_legal_actions(self.player_id):
                 new_state = deepcopy(state)
                 new_state.move(action, self.player_id) # player_id = 0 because we are in the maximizing player so the opponent
                 eval,new_action = self.minimax(new_state, depth - 1, False)
                 max_eval = max(max_eval, eval)
                 # update the best action
                 if max_eval == eval:
-                    max_action = new_action
+                    max_action = action
             return max_eval,max_action
         else:
             # if the player is the minimizing player 
-            self.player_id = self.root_player
+            self.player_id = 1- self.player_id
             min_eval = float('inf')
             min_action = None
             # for each legal action in the state we need to create a new state and call the minimax on it with depth - 1 and maximizing_player = True (because we are in the maximizing player then)
-            for action in state.get_legal_actions():
+            for action in state.get_legal_actions(self.player_id):
                 new_state = deepcopy(state)
                 new_state.move(action, self.player_id) # player_id = 1 because we are in the minimize player so our player
-                eval = self.minimax(new_state, depth - 1, True)
+                eval, new_action = self.minimax(new_state, depth - 1, True)
                 min_eval = min(min_eval, eval)
                 # update the best action
                 if min_eval == eval:
-                    min_action = new_action
+                    min_action = action
             return min_eval,min_action
         
 
@@ -68,7 +68,7 @@ class MiniMax():
         else:
             wins = results[1]
             loses = results[0]
-        return wins / loses  
+        return -loses  
 
 
 # if __name__ == "__main__":

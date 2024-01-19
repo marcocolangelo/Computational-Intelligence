@@ -267,9 +267,9 @@ class MonteCarloTreeSearchNode():
     def best_child(self, c_param=0.1,iter_sim=10):
         # approccio eps-greedy per la scelta del c_param
         #print(f"iter_sim: {iter_sim} e num_simulations: {self.num_simulations}")
-        if iter_sim/self.num_simulations < 0.25:
+        #if iter_sim/self.num_simulations < 0.25:
             #print(f"iter_sim: {iter_sim} e num_simulations: {self.num_simulations}")
-            c_param = self.c_param * 5
+            #c_param = self.c_param * 5
         choices_weights = [(c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n())) 
                            for c in self.children]
         return self.children[np.argmax(choices_weights)]

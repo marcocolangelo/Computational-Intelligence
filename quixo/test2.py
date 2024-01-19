@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 
                 # play the game
                 winner = g.play(players[0], players[1])
-                #g.print()
+                g.print()
                 #print(f"Winner: Player {winner}")
                 matches += 1
 

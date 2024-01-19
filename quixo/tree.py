@@ -109,8 +109,8 @@ class MonteCarloTreeSearchNode():
         return len(self._untried_actions) == 0
     
     # Credo sia la UCB equation (confermo che è la UCB equation (by Marco))
-    def best_child(self, c_param=0.1):
-        choices_weights = [(c.q() / c.n()) + c_param * np.sqrt((2 * np.log(self.n()) / c.n())) 
+    def best_child(self):
+        choices_weights = [(c.q() / c.n()) + self.c_param * np.sqrt((2 * np.log(self.n()) / c.n())) 
                            for c in self.children]
         #print(f'Il Nodo {self} ha chiamato best child.\nLen di choices_weights: {len(choices_weights)}\n# children: {len(self.children)}')
         return self.children[np.argmax(choices_weights)]
@@ -138,7 +138,7 @@ class MonteCarloTreeSearchNode():
         
         # non mi convince la scelta di mettere c_param = 0 quindi l'ho reso un iperparametro e provato a metterlo a 0.1
         # valutiamo la scelta di farlo variare nel tempo per favorire più l'exploration all'inizio e più la exploitation alla fine
-        return self.best_child(c_param = self.c_param)
+        return self.best_child()
     
     def __str__(self):
         ascii_val = 65 # corrisponde ad A
@@ -147,23 +147,27 @@ class MonteCarloTreeSearchNode():
         return f'Nodo {chr(ascii_val+self.parent.depth)+str(self.parent.id)+chr(ascii_val+self.depth) + str(self.id)}'
 
 
-    # Funzione utilizzata dal minimax per avere tutti i children già espansi e poter chiamare ricorsivamente minimax
-    def expand_children(self):
-        current_node = self
-        if not current_node.is_terminal_node():
-            while not current_node.is_fully_expanded():
-                current_node.expand()
+    # Funzione per recuperare l'azione che ha generato tale nodo 
+    def get_action(self):
+        return self.parent_action
+
+    # # Funzione utilizzata dal minimax per avere tutti i children già espansi e poter chiamare ricorsivamente minimax
+    # def expand_children(self):
+    #     current_node = self
+    #     if not current_node.is_terminal_node():
+    #         while not current_node.is_fully_expanded():
+    #             current_node.expand()
 
 
-    # Funzione sfruttata nel minimax per tornare rapporto vittorie/sconfitte 
-    def evaluation(self):
-        if self.root_player == 0:
-            wins = self._results[0]
-            loses = self._results[1]
-        else:
-            wins = self._results[1]
-            loses = self._results[0]
-        return -loses
+    # # Funzione sfruttata nel minimax per tornare rapporto vittorie/sconfitte 
+    # def evaluation(self):
+    #     if self.root_player == 0:
+    #         wins = self._results[0]
+    #         loses = self._results[1]
+    #     else:
+    #         wins = self._results[1]
+    #         loses = self._results[0]
+    #     return -loses
 
 
 

@@ -32,6 +32,7 @@ class Board():
         return acceptable_slides
     
 
+    # Questa versione è corretta
     def get_legal_actions(self, player_id):
         from_all_possible_pos = list(itertools.product(list(range(5)), repeat=2))
         possible_moves = []
@@ -43,11 +44,10 @@ class Board():
                 continue  # the cell is not in the border
             if self._board[from_pos] != player_id and self._board[from_pos] != -1:
                 continue  # the cell belongs to the opponent
-            accettable_slides = self.__acceptable_slides(from_pos)
+            accettable_slides = self.__acceptable_slides(tuple([row,col]))
             for slide in accettable_slides:
-                possible_moves.append((from_pos, slide))
+                possible_moves.append((tuple([row,col]), slide))
         # I shuffle the possible moves in order to use the pop function in the expand method
-        # and obtain a random expansion (Non parto sempre dalla stessa mossa)
         random.shuffle(possible_moves)
         return possible_moves
     
@@ -72,42 +72,104 @@ class Board():
             self._board[0, axis_1] = p_id
 
 
-    def check_winner(self, player_id) -> int:
+    def check_winner(self) -> int:
         '''Check the winner. Returns the player ID of the winner if any, otherwise returns -1'''
         # for each row
-        winner = -1
         for x in range(self._board.shape[0]):
             # if a player has completed an entire row
             if self._board[x, 0] != -1 and all(self._board[x, :] == self._board[x, 0]):
-                # return winner is this guy
-                winner = self._board[x, 0]
-        if winner > -1 and winner != player_id:
-            return winner
+                # return the relative id
+                return self._board[x, 0]
         # for each column
         for y in range(self._board.shape[1]):
             # if a player has completed an entire column
             if self._board[0, y] != -1 and all(self._board[:, y] == self._board[0, y]):
                 # return the relative id
-                winner = self._board[0, y]
-        if winner > -1 and winner != player_id:
-            return winner
+                return self._board[0, y]
         # if a player has completed the principal diagonal
         if self._board[0, 0] != -1 and all(
             [self._board[x, x]
                 for x in range(self._board.shape[0])] == self._board[0, 0]
         ):
             # return the relative id
-            winner = self._board[0, 0]
-        if winner > -1 and winner != player_id:
-            return winner
+            return self._board[0, 0]
         # if a player has completed the secondary diagonal
         if self._board[0, -1] != -1 and all(
             [self._board[x, -(x + 1)]
              for x in range(self._board.shape[0])] == self._board[0, -1]
         ):
             # return the relative id
-            winner = self._board[0, -1]
-        return winner
+            return self._board[0, -1]
+        return -1
+
+    def playerToMoveWins(self, p_id) -> bool:
+        board = self._board
+        key = p_id
+        for r in range(0, 5):
+            row = board[r, :]
+            col = board[:, r]
+            y = np.where(row == key)[0]
+            z = np.where(col == key)[0]
+            if (len(y) == 4):
+                col_pos = np.argwhere(row != key)[0][0]
+                if r != 0 and r != 4:
+                    if board[r-1, col_pos] == key:
+                        if board[4, col_pos] == -1 or board[4, col_pos] == key:
+                            return True
+                    elif board[r+1, col_pos] == key:
+                        if board[0, col_pos] == -1 or board[0, col_pos] == key:
+                            return True
+                else:
+                    r_to_check = 4-r
+                    if board[r_to_check, col_pos] == key or board[r_to_check, col_pos] == -1:
+                        return True
+            if (len(z) == 4):
+                row_pos = np.argwhere(col != key)[0][0]
+                if r != 0 and r != 4:
+                    if board[row_pos, r-1] == key:
+                        if board[row_pos, 4] == -1 or board[row_pos, 4] == key:
+                            return True
+                    elif board[row_pos, r+1] == key:
+                        if board[row_pos, 0] == -1 or board[row_pos, 0] == key:
+                            return True
+                else:
+                    r_to_check = 4-r
+                    if board[row_pos, r_to_check] == key or board[row_pos, r_to_check] == -1:
+                        return True 
+        return False
     
-    def printami(self):
-        print(self._board)
+    def playerToMoveLose(self, p_id) -> bool:
+        board = self._board
+        key = 1-p_id
+        for r in range(0, 5):
+            row = board[r, :]
+            col = board[:, r]
+            y = np.where(row == key)[0]
+            z = np.where(col == key)[0]
+            if (len(y) == 4):
+                col_pos = np.argwhere(row != key)[0][0]
+                if r != 0 and r != 4:
+                    if board[r-1, col_pos] == key:
+                        if board[4, col_pos] == -1 or board[4, col_pos] == key:
+                            return True
+                    elif board[r+1, col_pos] == key:
+                        if board[0, col_pos] == -1 or board[0, col_pos] == key:
+                            return True
+                else:
+                    r_to_check = 4-r
+                    if board[r_to_check, col_pos] == key or board[r_to_check, col_pos] == -1:
+                        return True
+            if (len(z) == 4):
+                row_pos = np.argwhere(col != key)[0][0]
+                if r != 0 and r != 4:
+                    if board[row_pos, r-1] == key:
+                        if board[row_pos, 4] == -1 or board[row_pos, 4] == key:
+                            return True
+                    elif board[row_pos, r+1] == key:
+                        if board[row_pos, 0] == -1 or board[row_pos, 0] == key:
+                            return True
+                else:
+                    r_to_check = 4-r
+                    if board[row_pos, r_to_check] == key or board[row_pos, r_to_check] == -1:
+                        return True 
+        return False

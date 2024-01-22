@@ -53,42 +53,35 @@ class Game(object):
     def check_winner(self) -> int:
         '''Check the winner. Returns the player ID of the winner if any, otherwise returns -1'''
         # for each row
-        player = self.get_current_player()
-        winner = -1
         for x in range(self._board.shape[0]):
             # if a player has completed an entire row
             if self._board[x, 0] != -1 and all(self._board[x, :] == self._board[x, 0]):
-                # return winner is this guy
-                winner = self._board[x, 0]
-        if winner > -1 and winner != self.get_current_player():
-            return winner
+                # return the relative id
+                return self._board[x, 0]
         # for each column
         for y in range(self._board.shape[1]):
             # if a player has completed an entire column
             if self._board[0, y] != -1 and all(self._board[:, y] == self._board[0, y]):
                 # return the relative id
-                winner = self._board[0, y]
-        if winner > -1 and winner != self.get_current_player():
-            return winner
+                return self._board[0, y]
         # if a player has completed the principal diagonal
         if self._board[0, 0] != -1 and all(
             [self._board[x, x]
                 for x in range(self._board.shape[0])] == self._board[0, 0]
         ):
             # return the relative id
-            winner = self._board[0, 0]
-        if winner > -1 and winner != self.get_current_player():
-            return winner
+            return self._board[0, 0]
         # if a player has completed the secondary diagonal
         if self._board[0, -1] != -1 and all(
             [self._board[x, -(x + 1)]
              for x in range(self._board.shape[0])] == self._board[0, -1]
         ):
             # return the relative id
-            winner = self._board[0, -1]
-        return winner
+            return self._board[0, -1]
+        return -1
 
-    def play(self, player1: Player, player2: Player) -> int:
+
+    def play(self, player1: Player, player2: Player, my_id) -> int:
         '''Play the game. Returns the winning player'''
         players = [player1, player2]
         winner = -1
@@ -100,10 +93,9 @@ class Game(object):
                 from_pos, slide = players[self.current_player_idx].make_move(
                     self)
                 ok = self.__move(from_pos, slide, self.current_player_idx)
+                if not ok and self.current_player_idx == my_id:
+                    print(f'Qualcosa non va')
             winner = self.check_winner()
-            # DA CANCELLARE SERVONO SOLO PER DEBUG
-            print(f'Mossa di player {self.current_player_idx} è {from_pos, slide}')
-            print(self.get_board())
         return winner
 
     def __move(self, from_pos: tuple[int, int], slide: Move, player_id: int) -> bool:

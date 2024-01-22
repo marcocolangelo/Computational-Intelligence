@@ -4,6 +4,7 @@ from enum import Enum
 import numpy as np
 from board import Board
 from tree import MonteCarloTreeSearchNode
+from tree_MB import MonteCarloTreeSearchNodeMB
 from minimax import MiniMax
 
 # Rules on PDF
@@ -18,13 +19,35 @@ class Move(Enum):
     RIGHT = 3
 
 ## MonteCarlo Fist Visit approach
-class MonteCarloPlayer(Player):
-    def __init__(self,root : MonteCarloTreeSearchNode,player_id, num_simulations = 100, c_param = 0.1, max_depth = 2) -> None:
+class MonteCarloPlayer_classic(Player):
+    def __init__(self,root : MonteCarloTreeSearchNode,player_id, num_simulations = 100, c_param = 0.1,duration = 1) -> None:
             self.root = root
             self.num_simulations = num_simulations
             self.c_param = c_param
             self.player_id = player_id
-            self.max_depth = max_depth
+            self.duration = duration
+
+            
+
+    @abstractmethod
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        #print(f"make_move -> my player id: {self.player_id}")
+        root = MonteCarloTreeSearchNode(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,num_simulations=self.num_simulations, c_param=self.c_param,duration = self.duration)
+        selected_node = root.best_action()
+        from_pos, move = selected_node.parent_action
+        #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
+        #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
+        return from_pos, Move(move.value)
+
+## MonteCarlo MB variant
+class MonteCarloPlayerMB(Player):
+    def __init__(self,root : MonteCarloTreeSearchNodeMB,player_id, num_simulations = 100, c_param = 0.1, minmax_depth = 4,duration = 1) -> None:
+            self.root = root
+            self.num_simulations = num_simulations
+            self.c_param = c_param
+            self.player_id = player_id
+            self.minmax_depth = minmax_depth
+            self.duration = duration
             
 
     @abstractmethod
@@ -34,16 +57,16 @@ class MonteCarloPlayer(Player):
         # selected_node = root.best_action()
         # from_pos, move = selected_node.parent_action
         
-            # Create an instance of the MiniMax class
-        minimax = MiniMax(Board(game.get_board()), depth=self.max_depth, maximizing_player=False, root_player=self.player_id, ns=100, cp=1.0)
 
         # Call the minimax method to get the best action
-        _,best_action = minimax.minimax(Board(game.get_board()), depth=3, maximizing_player=True)
-        from_pos, move = best_action.parent_action
-
+        #print("Da make_move entro in minimax")
+        root = MonteCarloTreeSearchNodeMB(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,minmax_depth=self.minmax_depth,num_simulations=self.num_simulations, c_param=self.c_param,duration = self.duration)
+        selected_node = root.best_action()
+        from_pos, move = selected_node.parent_action
         #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
         #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
         return from_pos, Move(move.value)
+
  
         
 
@@ -97,15 +120,19 @@ class Game(object):
         players = [player1, player2]
         current_player_idx = 1
         winner = -1
+        turno = 0
         while winner < 0:
+            turno +=1
+            #print(f"turno : {turno}")
             current_player_idx += 1
             current_player_idx %= len(players)
             ok = False
             #print(f"Nuovo turno : player {current_player_idx}")
             while not ok:
+             #   print(f"Entra nel while not ok")
                 from_pos, slide = players[current_player_idx].make_move(self)
                 ok = self.__move(from_pos, slide, current_player_idx)
-                #print(f"In play -> ok: {ok}")
+              #  print(f"In play -> ok: {ok}")
             #self.print()
             winner = self.check_winner()
         return winner
@@ -122,7 +149,7 @@ class Game(object):
         #print(f"In __move ->  primo acceptable: {acceptable}")
         if acceptable:
             acceptable = self.__slide((from_pos[1], from_pos[0]), slide, player_id)
-            #print(f"In __move -> secondo acceptable: {acceptable} perchè __slide ritorna {acceptable}")
+         #   print(f"In __move -> secondo acceptable: {acceptable} perchè __slide ritorna {acceptable}")
             if not acceptable:
                 self._board[(from_pos[1], from_pos[0])] = deepcopy(prev_value)
         return acceptable
@@ -133,10 +160,10 @@ class Game(object):
         row, col = from_pos
         from_border = row in (0, 4) or col in (0, 4)
         if not from_border:
-            #print(f"    In __take ->  from_border: {from_border} quindi ritorno False")
+         #   print(f"    In __take ->  from_border: {from_border} quindi ritorno False")
             return False  # the cell is not in the border
         if self._board[from_pos] != player_id and self._board[from_pos] != -1:
-            #print(f"    In __take ->  self._board[from_pos]: {self._board[from_pos]} quindi ritorno False")
+          #  print(f"    In __take ->  self._board[from_pos]: {self._board[from_pos]} quindi ritorno False")
             return False  # the cell belongs to the opponent
         #self._board[from_pos] = player_id
         return True
@@ -151,20 +178,20 @@ class Game(object):
         axis_1 = from_position[1]    # axis_1 = 0 means leftmost column
 
         if axis_0 == 0:  # can't move upwards if in the top row...
-            #print(f"        In __acceptable_slides ->  axis_0: {axis_0} quindi rimuovo TOP")
+            # print(f"        In __acceptable_slides ->  axis_0: {axis_0} quindi rimuovo TOP")
             acceptable_slides.remove(Move.TOP)
         elif axis_0 == 4:
-            #print(f"        In __acceptable_slides ->  axis_0: {axis_0} quindi rimuovo BOTTOM")
+            # print(f"        In __acceptable_slides ->  axis_0: {axis_0} quindi rimuovo BOTTOM")
             acceptable_slides.remove(Move.BOTTOM)
 
         if axis_1 == 0:
-            #print(f"        In __acceptable_slides ->  axis_1: {axis_1} quindi rimuovo LEFT")
+            # print(f"        In __acceptable_slides ->  axis_1: {axis_1} quindi rimuovo LEFT")
             acceptable_slides.remove(Move.LEFT)
         elif axis_1 == 4:
-            #print(f"        In __acceptable_slides ->  axis_1: {axis_1} quindi rimuovo RIGHT")
+            # print(f"        In __acceptable_slides ->  axis_1: {axis_1} quindi rimuovo RIGHT")
             acceptable_slides.remove(Move.RIGHT)
         
-        #print(f"        In __acceptable_slides ->  acceptable_slides: {acceptable_slides}")
+        # print(f"        In __acceptable_slides ->  acceptable_slides: {acceptable_slides}")
         return acceptable_slides
     
 
@@ -172,7 +199,7 @@ class Game(object):
         '''Slide the other pieces'''
         acc_slide = self.__acceptable_slides(from_pos)
         if slide not in acc_slide:
-            #print(f"    In__slide -> slide: {slide} not in acceptable slides :{acc_slide}")
+            # print(f"    In__slide -> slide: {slide} not in acceptable slides :{acc_slide}")
             return False  # consider raise ValueError('Invalid argument value')
         axis_0, axis_1 = from_pos
         # np.roll performs a rotation of the element of a 1D ndarray

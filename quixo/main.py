@@ -81,7 +81,7 @@ class MonteCarloPNSPlayer(Player):
 
 if __name__ == '__main__':
     players = np.empty(2, dtype=Player)
-    tot = 100
+    tot = 20
     # cross validation backbone to find best hyperparameters
     # this below is the best configuration found if we consider a performance/execution_time tradeoff
     #wins and matches for accuracy
@@ -97,8 +97,9 @@ if __name__ == '__main__':
         #g.print()
 
         # player initialization -> our player is players[my_player_id]
-        players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=1, c_param=0.1, pn_param=0.5)
-        players[1 - my_player_id] = MonteCarloPlayer(player_id=1-my_player_id,num_simulations=200, c_param=0.1)
+        players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=1, c_param=0.1, pn_param=1)
+        players[1-my_player_id] = RandomPlayer()
+        #players[1 - my_player_id] = MonteCarloPlayer(player_id=1-my_player_id,num_simulations=200, c_param=0.1)
         
         # play the game
         winner = g.play(players[0], players[1], my_player_id)
@@ -110,3 +111,6 @@ if __name__ == '__main__':
             wins += 1
         acc  = 100*float(wins)/float(matches)
         print("accuracy: ",acc )
+        # Contro MCTS con ns = 200 e c = 0.1
+        # io sono ns = 200, c = 0.1 e pn = 0.5
+        # Su 100 parrtite -> 60 vinte

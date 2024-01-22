@@ -353,7 +353,6 @@ class PN_MCTS_Node():
     # then loss is incremented by 1.
     # It updates also the rank of the children and the proof and disproof numbers
     def backpropagate(self, result, first_node, changed):
-        check = changed
         self._number_of_visits += 1.
         self._results[result] += 1.
         if not first_node:
@@ -364,8 +363,8 @@ class PN_MCTS_Node():
         else:
             first_node = False
         if self.parent:
-            check = self.parent.backpropagate(result, first_node, changed)
-        return check
+            changed = self.parent.backpropagate(result, first_node, changed)
+        return changed
 
     
     def is_fully_expanded(self):

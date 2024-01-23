@@ -1,4 +1,5 @@
 # SITOOOO: https://ai-boson.github.io/mcts/
+import random
 import numpy as np
 from collections import defaultdict
 from copy import deepcopy
@@ -187,8 +188,8 @@ class PN_MCTS_Node():
     def rollout_policy2(self,current_rollout_state,p_id):
         # Usa la funzione minimax_search per selezionare l'azione
         minimax = MiniMax(root=current_rollout_state, depth=4, maximizing_player=True, root_player=p_id)
-        _,action = minimax.minimax_search(current_rollout_state, depth=4, player_id=p_id,alpha=float('inf'),beta=float('-inf'))  # Usa la funzione di rollout minimax con una profondità di 3
-        return action
+        value,action = minimax.minimax_search(current_rollout_state, depth=3, player_id=p_id,alpha=float('inf'),beta=float('-inf'))  # Usa la funzione di rollout minimax con una profondità di 3
+        return value
 
 
     # Corrisponde alla funzione di simulation nella implementazione precedente
@@ -205,8 +206,22 @@ class PN_MCTS_Node():
                 #print("rollout policy classica")
                 action = self.rollout_policy(possible_moves)
             else:
-                # print("rollout policy MR hybrid")
-                action = self.rollout_policy2(current_rollout_state,p_id)
+                # prendi solo un decimo degli elementi in possible_moves selezionando a caso un elemento ogni 10
+                mini_possible_moves = random.choices(possible_moves, k=int(len(possible_moves)/15)) 
+
+                #print("rollout policy MR hybrid")
+                action = None
+                for move in mini_possible_moves:
+                    #print(f"mosse possibili: {possible_moves} e ora sto valutando la mossa: {move}")
+                    new_state = deepcopy(current_rollout_state)
+                    new_state.move(move, p_id)
+                    value = self.rollout_policy2(current_rollout_state,p_id)
+                    if value == -float('inf'):
+                        print("trovata mossa a vittoria sicura")
+                        action = move
+                        break
+                if action == None:
+                    action = self.rollout_policy(possible_moves)        
             current_rollout_state.move(action, p_id)
             #current_rollout_state.printami()
             winner = current_rollout_state.check_winner()

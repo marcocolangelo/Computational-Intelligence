@@ -69,18 +69,19 @@ class MonteCarloPlayerMB(Player):
         return from_pos, Move(move.value)
     
 class MonteCarloPNSPlayer(Player):
-    def __init__(self, player_id, duration = 1, c_param = 0.1, pn_param = 0.1,MR_hybrid = False) -> None:
+    def __init__(self, player_id, duration = 1, c_param = 0.1, pn_param = 0.1,MR_hybrid = False, minimax_depth = 1) -> None:
         self.duration = duration
         self.c_param = c_param
         self.pn_param = pn_param
         self.player_id = player_id
         self.MR_hybrid = MR_hybrid
+        self.minimax_depth = minimax_depth
         
 
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
         root = PN_MCTS_Node(Board(game.get_board()), player_id = self.player_id, 
                                         root_player = self.player_id, duration = self.duration, 
-                                        c_param = self.c_param, pn_param = self.pn_param,MR_hybrid = self.MR_hybrid)
+                                        c_param = self.c_param, pn_param = self.pn_param,MR_hybrid = self.MR_hybrid,minimax_depth=self.minimax_depth)
         selected_node = root.best_action()
         
         from_pos, move = selected_node.get_action()

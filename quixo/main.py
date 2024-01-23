@@ -59,11 +59,11 @@ if __name__ == '__main__':
                 #g.print()
 
                 # player initialization -> our player is players[my_player_id]
-                minmax_depth = 3
+                minmax_depth = 10
                 MR_hybrid = True # if True, the player will use the Minimax hybrid algorithm for the rollout
 
 
-                players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=duration, c_param=0.1, pn_param=0.5,MR_hybrid = MR_hybrid)
+                players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=duration, c_param=0.1, pn_param=0.5,MR_hybrid = MR_hybrid,minimax_depth=minmax_depth)
 
                 root_classic = MonteCarloTreeSearchNode(state=Board(), player_id=opposer, d=0, id=0,root_player=opposer, num_simulations=ns,c_param=cp)
                 players[opposer] = MonteCarloPlayer_classic(root=root_classic, player_id=opposer,num_simulations=ns, c_param=cp,duration = duration)

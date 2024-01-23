@@ -36,7 +36,7 @@ class PNSNodeValues(Enum):
 class PN_MCTS_Node():
     def __init__(self, state: Board, player_id, root_player, 
                  c_param, pn_param, parent : 'PN_MCTS_Node' = None, 
-                 parent_action = None, d = 0, id = 0, duration=1,MR_hybrid = False):
+                 parent_action = None, d = 0, id = 0, duration=1,MR_hybrid = False, minimax_depth = 1):
         self.state : Board = state                              # The state of the board
         self.parent : PN_MCTS_Node = parent                     # Parent node
         self.parent_action = parent_action                      # None for the root node and for other nodes it is
@@ -71,6 +71,7 @@ class PN_MCTS_Node():
         self.c_param = c_param                  # exploration/exploitation tradeoff
         self.pn_param = pn_param
         self.MR_hybrid = MR_hybrid              # flag to enable/disable the MF hybridization
+        self.minimax_depth = minimax_depth                  # depth of the minimax search
         return
 
 
@@ -187,8 +188,8 @@ class PN_MCTS_Node():
     
     def rollout_policy2(self,current_rollout_state,p_id):
         # Usa la funzione minimax_search per selezionare l'azione
-        minimax = MiniMax(root=current_rollout_state, depth=4, maximizing_player=True, root_player=p_id)
-        value,action = minimax.minimax_search(current_rollout_state, depth=3, player_id=p_id,alpha=float('inf'),beta=float('-inf'))  # Usa la funzione di rollout minimax con una profondità di 3
+        minimax = MiniMax(root=current_rollout_state, depth=self.minimax_depth, maximizing_player=True, root_player=p_id)
+        value,action = minimax.minimax_search(current_rollout_state, depth=self.minimax_depth, player_id=p_id,alpha=float('inf'),beta=float('-inf'))  # Usa la funzione di rollout minimax con una profondità di 3
         return value
 
 
@@ -207,8 +208,8 @@ class PN_MCTS_Node():
                 action = self.rollout_policy(possible_moves)
             else:
                 # prendi solo un decimo degli elementi in possible_moves selezionando a caso un elemento ogni 10
-                mini_possible_moves = random.choices(possible_moves, k=int(len(possible_moves)/15)) 
-
+                mini_possible_moves = random.choices(possible_moves, k=int(len(possible_moves)/1)) 
+                plausible_moves = []
                 #print("rollout policy MR hybrid")
                 action = None
                 for move in mini_possible_moves:
@@ -216,12 +217,20 @@ class PN_MCTS_Node():
                     new_state = deepcopy(current_rollout_state)
                     new_state.move(move, p_id)
                     value = self.rollout_policy2(current_rollout_state,p_id)
+                    if self.minimax_depth % 2 == 1:
+                        value = -value
                     if value == -float('inf'):
                         print("trovata mossa a vittoria sicura")
                         action = move
                         break
+                    if value == -1:
+                        #print("trovata mossa incerta")
+                        plausible_moves.append(move)
+                    if value == float('inf'):   #solo sconfitte
+                        print("trovata mossa a sconfitta sicura")
+
                 if action == None:
-                    action = self.rollout_policy(possible_moves)        
+                    action = self.rollout_policy(plausible_moves)        
             current_rollout_state.move(action, p_id)
             #current_rollout_state.printami()
             winner = current_rollout_state.check_winner()

@@ -31,7 +31,7 @@ class MiniMax():
                 new_state.move(move, player_id)
                 value,_ = self.minimax_search(new_state, depth-1, 1-player_id, alpha, beta)
                 #se value = infinito ho trovato una vittoria
-                value = -value #così se almeno una perdita allora max_eval = infinito e quindi so che non è una mossa a vittoria sicura quella del nodo corrente
+                value = -value #così se almeno una perdita persa allora max_eval = infinito e quindi so che non è una mossa a vittoria sicura quella del nodo corrente
                 max_eval = max(max_eval, value)
                 # if max_eval == value:
                 #     best_move = move
@@ -41,11 +41,11 @@ class MiniMax():
                 # update the best action
                 #alpha = max(alpha,max_eval)
 
-                #significa se ho trovato almeno una perdita e quindi non è una mossa a vittoria sicura
-                if max_eval == float('inf'):
-                    break
+                #significa se ho trovato almeno una perdita o uno stato incerto e quindi non è una mossa a vittoria sicura, posso scartare il nodo
+                # if max_eval == -1:
+                #     break
 
-            if max_eval == float('inf'):
+            if max_eval == float('inf') or max_eval == -1:
                 best_move = random.choice(state.get_legal_actions(player_id))
             return max_eval,best_move 
 
@@ -67,9 +67,9 @@ class MiniMax():
                 #     break
                 # beta = min(beta,min_eval)
 
-                #significa se ho trovato almeno una perdita e quindi non è una mossa a vittoria sicura
-                if min_eval == float('-inf'):
-                    break
-            if min_eval == float('-inf'):
+                #significa se ho trovato almeno una perdita o uno stato incerto e quindi non è una mossa a vittoria sicura
+                # if min_eval == -1:
+                #     break
+            if min_eval == float('-inf') or min_eval == -1:
                 best_move = random.choice(state.get_legal_actions(player_id))
             return min_eval,best_move 

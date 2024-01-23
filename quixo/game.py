@@ -5,6 +5,7 @@ import numpy as np
 from board import Board
 from tree import MonteCarloTreeSearchNode
 from tree_MB import MonteCarloTreeSearchNodeMB
+from tree_PNS import PN_MCTS_Node
 from minimax import MiniMax
 
 # Rules on PDF
@@ -66,6 +67,27 @@ class MonteCarloPlayerMB(Player):
         #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
         #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
         return from_pos, Move(move.value)
+    
+class MonteCarloPNSPlayer(Player):
+    def __init__(self, player_id, duration = 1, c_param = 0.1, pn_param = 0.1,MR_hybrid = False) -> None:
+        self.duration = duration
+        self.c_param = c_param
+        self.pn_param = pn_param
+        self.player_id = player_id
+        self.MR_hybrid = MR_hybrid
+        
+
+    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
+        root = PN_MCTS_Node(Board(game.get_board()), player_id = self.player_id, 
+                                        root_player = self.player_id, duration = self.duration, 
+                                        c_param = self.c_param, pn_param = self.pn_param,MR_hybrid = self.MR_hybrid)
+        selected_node = root.best_action()
+        
+        from_pos, move = selected_node.get_action()
+        #print(from_pos, move)
+        #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
+        #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
+        return from_pos,Move(move.value)
 
  
         
@@ -132,7 +154,7 @@ class Game(object):
              #   print(f"Entra nel while not ok")
                 from_pos, slide = players[current_player_idx].make_move(self)
                 ok = self.__move(from_pos, slide, current_player_idx)
-              #  print(f"In play -> ok: {ok}")
+                #print(f"In play -> ok: {ok}")
             #self.print()
             winner = self.check_winner()
         return winner

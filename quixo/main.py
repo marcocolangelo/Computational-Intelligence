@@ -2,7 +2,7 @@ import os
 import random
 import numpy as np
 import tqdm
-from game import Game, MonteCarloPlayerMB,MonteCarloPlayer_classic, Move, Player
+from game import Game, MonteCarloPlayerMB,MonteCarloPlayer_classic,MonteCarloPNSPlayer, Move, Player
 from board import Board
 from tree import MonteCarloTreeSearchNode
 from tree_MB import MonteCarloTreeSearchNodeMB
@@ -18,6 +18,8 @@ class RandomPlayer(Player):
         from_pos = (random.randint(0, 4), random.randint(0, 4))
         move = random.choice([Move.TOP, Move.BOTTOM, Move.LEFT, Move.RIGHT])
         return from_pos, move
+    
+
 
 
 # class MyPlayer(Player):
@@ -40,7 +42,7 @@ if __name__ == '__main__':
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    duration = 2 #in terms of seconds
+    duration = 0.5 #in terms of seconds
     for ns in [1000]:
         for cp in [0.1]:
 
@@ -57,10 +59,12 @@ if __name__ == '__main__':
                 #g.print()
 
                 # player initialization -> our player is players[my_player_id]
-                minmax_depth = 0
-                root = MonteCarloTreeSearchNodeMB(state=Board(), player_id=my_player_id, d=0, id=0,root_player=my_player_id, minmax_depth=minmax_depth, num_simulations=ns,c_param=cp)
-                players[my_player_id] = MonteCarloPlayerMB(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp,minmax_depth=minmax_depth,duration = duration)
+                minmax_depth = 4
+                MR_hybrid = False # if True, the player will use the Minimax hybrid algorithm for the rollout
+
                 
+                players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=duration, c_param=0.1, pn_param=0.5,MR_hybrid = MR_hybrid)
+
                 root_classic = MonteCarloTreeSearchNode(state=Board(), player_id=opposer, d=0, id=0,root_player=opposer, num_simulations=ns,c_param=cp)
                 players[opposer] = MonteCarloPlayer_classic(root=root_classic, player_id=opposer,num_simulations=ns, c_param=cp,duration = duration)
                 #players[opposer] = RandomPlayer()

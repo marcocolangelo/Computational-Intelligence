@@ -81,7 +81,7 @@ class Game(object):
         return -1
 
 
-    def play(self, player1: Player, player2: Player, my_id) -> int:
+    def play(self, player1: Player, player2: Player) -> int:
         '''Play the game. Returns the winning player'''
         players = [player1, player2]
         winner = -1
@@ -93,8 +93,6 @@ class Game(object):
                 from_pos, slide = players[self.current_player_idx].make_move(
                     self)
                 ok = self.__move(from_pos, slide, self.current_player_idx)
-                if not ok and self.current_player_idx == my_id:
-                    print(f'Qualcosa non va')
             winner = self.check_winner()
         return winner
 

@@ -9,7 +9,8 @@ from enum import Enum
 
 
 class MonteCarloTreeSearchNode():
-    def __init__(self, state: Board, player_id, root_player, num_simulations, c_param, parent : 'MonteCarloTreeSearchNode' = None, parent_action = None, d = 0, id = 0):
+    def __init__(self, state: Board, player_id, root_player, duration, c_param, 
+                 parent : 'MonteCarloTreeSearchNode' = None, parent_action = None, d = 0, id = 0):
         self.state : Board = state                              # The state of the board
         self.parent : MonteCarloTreeSearchNode = parent         # Parent node
         self.parent_action = parent_action                      # None for the root node and for other nodes it is
@@ -29,7 +30,7 @@ class MonteCarloTreeSearchNode():
         self.id = id      # number to identify the node (2 = 2nd son of the parent node)
 
         # hyperparameters (aggiunti da Marco)
-        self.num_simulations = num_simulations  # number of simulations
+        self.duration = duration
         self.c_param = c_param                  # exploration/exploitation tradeoff
         return
 
@@ -63,7 +64,10 @@ class MonteCarloTreeSearchNode():
         next_state.move(action, self.player_id)
         p_id = 1 - self.player_id  # prima era p_id = 1 - p_id e non funzionava per cui ho cambiato come vedi qui
         #print(f"expand -> p_id: {p_id} e self.player_id: {self.player_id}")
-        child_node = MonteCarloTreeSearchNode(state=next_state, player_id=p_id, d=self.depth+1, id=len(self.children)+1,root_player=self.root_player, parent=self, parent_action=action, num_simulations=self.num_simulations, c_param=self.c_param)
+        child_node = MonteCarloTreeSearchNode(state=next_state, player_id=p_id, d=self.depth+1, 
+                                              id=len(self.children)+1,root_player=self.root_player, 
+                                              parent=self, parent_action=action, duration=self.duration, 
+                                              c_param=self.c_param)
         self.children.append(child_node)
         return child_node
     
@@ -131,8 +135,8 @@ class MonteCarloTreeSearchNode():
     # This is the best action function which returns the node corresponding to best possible move. 
     # The step of expansion, simulation and backpropagation are carried out by this function
     def best_action(self):
-        simulation_no = self.num_simulations    # l'ho reso un iperparametro così possiamo fare prove con varie configurazioni
-        for _ in range(simulation_no):
+        start = time.time()
+        while time.time() - start < self.duration:
             v = self._tree_policy()
             #print(v)
             reward = v.rollout()
@@ -398,7 +402,7 @@ class PN_MCTS_Node():
     # CHANGED for PCN
     def best_action(self):
         start = time.time()
-        for _ in range(200):
+        while time.time() - start < self.duration:
             v = self._tree_policy()
             if not v.is_terminal_node(): # Se non è un nodo terminale faccio partire il rollout
                 #print(v)

@@ -20,15 +20,15 @@ class RandomPlayer(Player):
 
 ## MonteCarlo Tree Search 
 class MonteCarloPlayer(Player):
-    def __init__(self, player_id, num_simulations = 100, c_param = 0.1) -> None:
-            self.num_simulations = num_simulations
+    def __init__(self, player_id, duration = 1, c_param = 0.1) -> None:
+            self.duration =duration
             self.c_param = c_param
             self.player_id = player_id
             
 
     def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
         root = MonteCarloTreeSearchNode(Board(game.get_board()), player_id = self.player_id, 
-                                        root_player = self.player_id, num_simulations = self.num_simulations, 
+                                        root_player = self.player_id, duration = self.duration, 
                                         c_param = self.c_param)
         selected_node = root.best_action()
         from_pos, move = selected_node.get_action()

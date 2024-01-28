@@ -17,7 +17,7 @@ class Board():
         else:
             self._board = np.ones((5, 5), dtype=np.uint8) * -1
 
-    # Metodo privato al nodo per sapere tutti i possibili movimenti di slide concessi  datta posizione from_position
+    # Private method at node to know all possible slide movements granted datta position from_position
     def __acceptable_slides(self, from_position: tuple[int, int]):
         """When taking a piece from {from_position} returns the possible moves (slides)"""
         acceptable_slides = [Move.BOTTOM, Move.TOP, Move.LEFT, Move.RIGHT]
@@ -55,7 +55,7 @@ class Board():
         return possible_moves
     
 
-    # metodo per applicare la mossa 
+    # method to apply the move 
     def move(self, action, p_id):
         from_pos, slide = action
         # _slide

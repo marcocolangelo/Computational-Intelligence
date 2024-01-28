@@ -139,6 +139,7 @@ class MonteCarloTreeSearchNode():
         simulation_no = self.num_simulations    # l'ho reso un iperparametro così possiamo fare prove con varie configurazioni
         start = time.time()
         while time.time() - start < self.duration:
+        #for i in range(50):
             v = self._tree_policy()
             #print(v)
             reward = v.rollout()

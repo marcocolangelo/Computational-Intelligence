@@ -12,8 +12,8 @@ from minimax_PNS import MiniMax
 ######################################
 #PN-MCTS
     
-# I nodi del mio player sono nodi OR
-# I nodi dell'avversario sono nodi AND
+# My player's nodes are OR nodes
+# The opponent's nodes are AND nodes
 
 
 class PNSNodeTypes(Enum):
@@ -56,21 +56,21 @@ class PN_MCTS_Node():
                         # in order to prove the node.
         self.dpn = 0.0  # disproof number, represents the minimum number of leaf nodes, which have to be disproved 
                         # in order to disprove the node.
-        self.rank = 0
+        self.rank = 0   # rank of the node, used to break ties in the selection phase
         self.type = PNSNodeTypes.OR_NODE if self.player_id == self.root_player else PNSNodeTypes.AND_NODE
         self.value: PNSNodeValues = None
-        self.update_proof_disproof()
-        self.evaluate()
+        self.update_proof_disproof() # update the proof and disproof numbers of the node 
+        self.evaluate() # evaluate the node
 
         # info per debugging
         self.depth = d    # depth of the node
         self.id = id      # number to identify the node (2 = 2nd son of the parent node)
 
-        # hyperparameters (aggiunti da Marco)
+        # hyperparameters 
         self.duration = duration                # duration of the tee search
         self.c_param = c_param                  # exploration/exploitation tradeoff
-        self.pn_param = pn_param
-        self.MR_hybrid = MR_hybrid              # flag to enable/disable the MF hybridization
+        self.pn_param = pn_param            # parameter to balance the proof and disproof numbers for the uct_pn_selection function
+        self.MR_hybrid = MR_hybrid              # flag to enable/disable the MiniMax Rollout hybridization
         self.minimax_depth = minimax_depth                  # depth of the minimax search
         return
 
@@ -81,7 +81,7 @@ class PN_MCTS_Node():
         return self._untried_actions
     
 
-    # Evaluate the node -> set TRUE, FALSE or UNKNOWN
+    # Evaluate the node -> set TRUE(winning terminal node), FALSE(losing terminal node) or UNKNOWN(if not terminal node)
     def evaluate(self):
         if self.is_terminal_node():
             winner = self.state.check_winner()
@@ -93,51 +93,52 @@ class PN_MCTS_Node():
             self.value = PNSNodeValues.UNKNOWN
 
 
-    # Update of pn and dpn 
+    # Update of pn and dpn -> returns True if something changed, False otherwise (used for backpropagation)
     def update_proof_disproof(self):
         if self.expanded: # If the node has children
-            if self.type == PNSNodeTypes.AND_NODE:
+            if self.type == PNSNodeTypes.AND_NODE:  # opponent node
                 proof = sum(child.pn for child in self.children)
-                disproof = min(child.dpn for child in self.children)
-                if self.pn == proof and self.dpn == disproof:
-                    return False
+                disproof = min(child.dpn for child in self.children)    #it wants to disproof my_agent behaviour so it looks for the minimum disproof number of the children nodes(my_player nodes in this case) so the action that this opponent can counterattack better
+                if self.pn == proof and self.dpn == disproof:       #nothing changed
+                    return False    #so return changed = False
                 else:
                     self.pn = proof
                     self.dpn = disproof
                     return True
-            elif self.type == PNSNodeTypes.OR_NODE:
+            elif self.type == PNSNodeTypes.OR_NODE: # my agent node
                 disproof = sum(child.dpn for child in self.children)
-                proof = min(child.pn for child in self.children)
-                if self.pn == proof and self.dpn == disproof:
-                    return False
-                else:
+                proof = min(child.pn for child in self.children)    #my_agent wants to prove its behaviour so it looks for the minimum proof number(action with minimun n of nodes to prove a win) of the children nodes(opponent nodes in this case) so the action that this agent can counterattack better
+                if self.pn == proof and self.dpn == disproof: #nothing changed
+                    return False #so return changed = False
+                else: #something changed so update the proof and disproof numbers
                     self.pn = proof
                     self.dpn = disproof
-                    return True
+                    return True #so return changed = True
         elif not self.expanded:
             if self.value == PNSNodeValues.FALSE:
-                self.pn = float('inf')
-                self.dpn = 0.0
+                self.pn = float('inf')  #so impossible to prove as a winning node (it's already a losing node) hence the infinity number of nodes to prove it
+                self.dpn = 0.0  #so it's a disproven node (it's a losing node)
             elif self.value == PNSNodeValues.TRUE:
-                self.pn = 0.0
-                self.dpn = float('inf')
+                self.pn = 0.0 #so it's a proven node (it's a winning node)
+                self.dpn = float('inf') #so impossible to disprove as a losing node (it's already a winning node) hence the infinity number of nodes to disprove it
             elif self.value == PNSNodeValues.UNKNOWN:
-                self.pn = 1.0
-                self.dpn = 1.0
+                self.pn = 1.0 #so atleast one node to prove it because it's unknown
+                self.dpn = 1.0 #so atleast one node to disprove it because it's unknown
         return True
 
 
-    # rank all the children based on the type of node
+    # rank all the children based on the type of node -> used in the backpropagation phase if something changed
+    # rank is used in the uct_pn_selection function 
     def rank_children(self):
         sorted_children = sorted(self.children, key=lambda child: child.rank)
         last_node = None
         for i, child in enumerate(sorted_children):
-            if last_node is not None and self.type == PNSNodeTypes.OR_NODE and last_node.pn == child.pn:
+            if last_node is not None and self.type == PNSNodeTypes.OR_NODE and last_node.pn == child.pn:    #if the parent node is my_agent and the last node has the same proof number of the current node then they have the same rank
                 child.rank = last_node.rank
-            elif last_node is not None and self.type == PNSNodeTypes.AND_NODE and last_node.dpn == child.dpn:
+            elif last_node is not None and self.type == PNSNodeTypes.AND_NODE and last_node.dpn == child.dpn: #if the parent node is the opponent and the last node has the same disproof number of the current node then they have the same rank
                 child.rank = last_node.rank
             else:
-                child.rank = i+1
+                child.rank = i+1   #else the rank is the position of the node in the sorted list(+1 because the index starts from 0)
             last_node = child
 
     # Returns the difference of wins/loses
@@ -168,7 +169,7 @@ class PN_MCTS_Node():
             p_id = 1 - self.player_id  
             child_node = PN_MCTS_Node(state=next_state, player_id=p_id, d=self.depth+1, 
                                     id=len(self.children)+1,root_player=self.root_player, parent=self, 
-                                    parent_action=action, c_param=self.c_param, pn_param = self.pn_param,MR_hybrid=self.MR_hybrid)
+                                    parent_action=action, c_param=self.c_param, pn_param = self.pn_param,MR_hybrid=self.MR_hybrid,minimax_depth=self.minimax_depth)
             self.children.append(child_node)
             self.expanded = True
             return child_node
@@ -187,13 +188,14 @@ class PN_MCTS_Node():
         return possible_moves[np.random.randint(len(possible_moves))]
     
     def rollout_policy2(self,current_rollout_state,p_id):
-        # Usa la funzione minimax_search per selezionare l'azione
-        minimax = MiniMax(root=current_rollout_state, depth=self.minimax_depth, maximizing_player=True, root_player=p_id)
-        value,action = minimax.minimax_search(current_rollout_state, depth=self.minimax_depth, player_id=p_id,alpha=float('inf'),beta=float('-inf'))  # Usa la funzione di rollout minimax con una profondità di 3
+        # Use the minimax_search function to select the action. It want to avoid certain defeat and look for a certain win but if it can't find any of these it will select a random action(rollout_policy function)
+        maximizing_player = True if p_id == self.root_player else False
+        minimax = MiniMax(root=current_rollout_state, depth=self.minimax_depth, maximizing_player=maximizing_player, root_player=self.root_player)
+        value,action = minimax.minimax_search(current_rollout_state, depth=self.minimax_depth, player_id=p_id,alpha=float('inf'),beta=float('-inf'))  # Use the minimax rollout function with a specified depth as a hyperparameter
         return value
 
 
-    # Corrisponde alla funzione di simulation nella implementazione precedente
+    # Corresponds to the simulation function in the previous implementation.
     def rollout(self):
         current_rollout_state = deepcopy(self.state)
         p_id = self.player_id
@@ -207,27 +209,27 @@ class PN_MCTS_Node():
                 #print("rollout policy classica")
                 action = self.rollout_policy(possible_moves)
             else:
-                # prendi solo un decimo degli elementi in possible_moves selezionando a caso un elemento ogni 10
-                mini_possible_moves = random.choices(possible_moves, k=int(len(possible_moves)/1)) 
+                # take only a tenth of the elements in possible_moves by randomly selecting every 10th element
+                #mini_possible_moves = random.choices(possible_moves, k=int(len(possible_moves)/1)) 
                 plausible_moves = []
                 #print("rollout policy MR hybrid")
                 action = None
-                for move in mini_possible_moves:
+                for move in possible_moves:
                     #print(f"mosse possibili: {possible_moves} e ora sto valutando la mossa: {move}")
                     new_state = deepcopy(current_rollout_state)
                     new_state.move(move, p_id)
-                    value = self.rollout_policy2(current_rollout_state,p_id)
+                    value = self.rollout_policy2(new_state,p_id)
                     if self.minimax_depth % 2 == 1:
                         value = -value
                     if value == -float('inf'):
-                        print("trovata mossa a vittoria sicura")
+                       # print("trovata mossa a vittoria sicura")
                         action = move
                         break
                     if value == -1:
                         #print("trovata mossa incerta")
                         plausible_moves.append(move)
-                    if value == float('inf'):   #solo sconfitte
-                        print("trovata mossa a sconfitta sicura")
+                    #if value == float('inf'):   #solo sconfitte
+                        #print("trovata mossa a sconfitta sicura")
 
                 if action == None:
                     action = self.rollout_policy(plausible_moves)        
@@ -235,7 +237,7 @@ class PN_MCTS_Node():
             #current_rollout_state.printami()
             winner = current_rollout_state.check_winner()
             p_id = 1 - p_id
-        # deve tornare il risultato del gioco (potrei utilizzare la stessa check_winner)
+        # must return the result of the game (I could use the same check_winner)
         #print("esco")
         return winner
     
@@ -291,9 +293,10 @@ class PN_MCTS_Node():
     # CHANGED for PCN
     def best_action(self):
         start = time.time()
-        while time.time() - start < self.duration:  
+        #for _ in range(30):  
+        while time.time() - start < self.duration: 
             v = self._tree_policy()
-            if not v.is_terminal_node(): # Se non è un nodo terminale faccio partire il rollout
+            if not v.is_terminal_node(): # If it is not a terminal node I start the rollout.
                 #print(v)
                 reward = v.rollout()
             else:
@@ -306,8 +309,9 @@ class PN_MCTS_Node():
         return self.final_child_selection()
     
 
-    # Implementazione Robust child
-    # si seleziona il figlio con il maggior numero di visite
+    # Robust child implementation.
+    # you select the child with the most visits because it is the most robust one
+    # more visits -> more used -> more robust
     def final_child_selection(self):
         num_visits = [c.n() for c in self.children]
         return self.children[np.argmax(num_visits)]

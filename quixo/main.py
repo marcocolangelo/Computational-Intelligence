@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
-    duration = 0.5 #in terms of seconds
+    duration = 1 #in terms of seconds
     for ns in [1000]:
         for cp in [0.1]:
 
@@ -59,11 +59,11 @@ if __name__ == '__main__':
                 #g.print()
 
                 # player initialization -> our player is players[my_player_id]
-                minmax_depth = 10
+                minmax_depth = 1
                 MR_hybrid = True # if True, the player will use the Minimax hybrid algorithm for the rollout
 
-
-                players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=duration, c_param=0.1, pn_param=0.5,MR_hybrid = MR_hybrid,minimax_depth=minmax_depth)
+                #NB: sono passato dall'usare una duration a tornare al numero di iterazioni massimo
+                players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=duration, c_param=0.5, pn_param=0.5,MR_hybrid = MR_hybrid,minimax_depth=minmax_depth)
 
                 root_classic = MonteCarloTreeSearchNode(state=Board(), player_id=opposer, d=0, id=0,root_player=opposer, num_simulations=ns,c_param=cp)
                 players[opposer] = MonteCarloPlayer_classic(root=root_classic, player_id=opposer,num_simulations=ns, c_param=cp,duration = duration)

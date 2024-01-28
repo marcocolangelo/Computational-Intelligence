@@ -14,8 +14,10 @@ class MiniMax():
 
 
     def minimax_search(self, state  : Board, depth, player_id, alpha, beta):
+        #print("depth: ", depth)
         #COn questo approccio posso solo favorire le mosse a vittoria sicura ed evitare quelle a sconfitta sicura altrimenti non posso sapere nulla di più
         if depth == 0 or state.check_winner() != -1:
+            #print(f"depth: {depth} e winner: {state.check_winner()} with root : {self.root_player}")
             if (state.check_winner() == self.root_player):
                 return float('inf'),None
             elif (state.check_winner() == 1 - self.root_player):
@@ -30,8 +32,15 @@ class MiniMax():
                 new_state = deepcopy(state)
                 new_state.move(move, player_id)
                 value,_ = self.minimax_search(new_state, depth-1, 1-player_id, alpha, beta)
-                #se value = infinito ho trovato una vittoria
-                value = -value #così se almeno una perdita persa allora max_eval = infinito e quindi so che non è una mossa a vittoria sicura quella del nodo corrente
+                #if value = infinity I found a victory
+                value = -value        #means if I have found at least one loss or uncertain state and therefore it is not a sure win move, I can discard the node
+
+                
+                #means if I have found at least one loss or uncertain state and therefore it is not a sure win move, I can discard the node
+                if value == -1 or value == 1:
+                     return value,move
+                     
+
                 max_eval = max(max_eval, value)
                 # if max_eval == value:
                 #     best_move = move
@@ -41,9 +50,7 @@ class MiniMax():
                 # update the best action
                 #alpha = max(alpha,max_eval)
 
-                #significa se ho trovato almeno una perdita o uno stato incerto e quindi non è una mossa a vittoria sicura, posso scartare il nodo
-                # if max_eval == -1:
-                #     break
+               
 
             if max_eval == float('inf') or max_eval == -1:
                 best_move = random.choice(state.get_legal_actions(player_id))
@@ -56,9 +63,13 @@ class MiniMax():
                 new_state.move(move, player_id)
                 value,_ = self.minimax_search(new_state, depth-1, 1-player_id, alpha, beta)
 
-                #se value = infinito ho trovato una vittoria del giocatore opposto
+                #if value = infinite I found a win from the opposite player.
                 value = -value
+
+                if value == -1 or value == 1:
+                     return value,move
                 
+                #means if I have found at least one loss or uncertain state and therefore it is not a sure win move
                 min_eval = min(min_eval, value)
                 # update the best action
                 # if min_eval == value:
@@ -67,7 +78,7 @@ class MiniMax():
                 #     break
                 # beta = min(beta,min_eval)
 
-                #significa se ho trovato almeno una perdita o uno stato incerto e quindi non è una mossa a vittoria sicura
+                
                 # if min_eval == -1:
                 #     break
             if min_eval == float('-inf') or min_eval == -1:

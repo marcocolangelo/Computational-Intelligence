@@ -28,7 +28,7 @@ class MonteCarloTreeSearchNode():
         self.depth = d
         self.id = id      # numero del figlio
 
-        # hyperparameters (aggiunti da Marco)
+        # hyperparameters 
         self.num_simulations = num_simulations  # number of simulations
         self.c_param = c_param  # exploration/exploitation tradeoff
         self.duration = duration
@@ -61,7 +61,6 @@ class MonteCarloTreeSearchNode():
     
     def expand(self):	
         action = self._untried_actions.pop()
-        # Applico la mossa
         next_state = deepcopy(self.state)
         next_state.move(action, self.player_id)
         p_id = 1 - self.player_id  # prima era p_id = 1 - p_id e non funzionava per cui ho cambiato come vedi qui
@@ -81,7 +80,7 @@ class MonteCarloTreeSearchNode():
         return possible_moves[np.random.randint(len(possible_moves))]
 
 
-    # Corrisponde alla funzione di simulation nella implementazione precedente
+    # Corresponds to the simulation function in the previous implementation.
     def rollout(self):
         current_rollout_state = deepcopy(self.state)
         p_id = self.player_id
@@ -93,7 +92,6 @@ class MonteCarloTreeSearchNode():
             current_rollout_state.move(action, p_id)
             #current_rollout_state.printami()
             p_id = 1 - p_id
-        # deve tornare il risultato del gioco (potrei utilizzare la stessa check_winner)
         return current_rollout_state.check_winner()
     
 
@@ -111,10 +109,8 @@ class MonteCarloTreeSearchNode():
     def is_fully_expanded(self):
         return len(self._untried_actions) == 0
     
-    # Credo sia la UCB equation (confermo che è la UCB equation (by Marco))
     def best_child(self, c_param=0.1,iter_sim=10):
-        # approccio eps-greedy per la scelta del c_param
-        #print(f"iter_sim: {iter_sim} e num_simulations: {self.num_simulations}")
+        # old eps-greedy approach, discarded because not effective
         #if iter_sim/self.num_simulations < 0.25:
             #print(f"iter_sim: {iter_sim} e num_simulations: {self.num_simulations}")
             #c_param = self.c_param * 5
@@ -136,7 +132,7 @@ class MonteCarloTreeSearchNode():
     # This is the best action function which returns the node corresponding to best possible move. 
     # The step of expansion, simulation and backpropagation are carried out by this function
     def best_action(self):
-        simulation_no = self.num_simulations    # l'ho reso un iperparametro così possiamo fare prove con varie configurazioni
+        simulation_no = self.num_simulations   
         start = time.time()
         while time.time() - start < self.duration:
         #for i in range(50):
@@ -145,8 +141,7 @@ class MonteCarloTreeSearchNode():
             reward = v.rollout()
             v.backpropagate(reward)
         
-        # non mi convince la scelta di mettere c_param = 0 quindi l'ho reso un iperparametro e provato a metterlo a 0.1
-            # valutiamo la scelta di farlo variare nel tempo per favorire più l'exploration all'inizio e più la exploitation alla fine
+       
         return self.best_child(c_param = self.c_param,iter_sim=simulation_no)
     
     def get_action(self):

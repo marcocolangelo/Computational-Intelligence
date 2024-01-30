@@ -4,9 +4,7 @@ from enum import Enum
 import numpy as np
 from board import Board
 from tree import MonteCarloTreeSearchNode
-from tree_MB import MonteCarloTreeSearchNodeMB
 from tree_PNS import PN_MCTS_Node
-from minimax import MiniMax
 
 # Rules on PDF
 class Player():
@@ -40,34 +38,7 @@ class MonteCarloPlayer_classic(Player):
         #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
         return from_pos, Move(move.value)
 
-## MonteCarlo MB variant
-class MonteCarloPlayerMB(Player):
-    def __init__(self,root : MonteCarloTreeSearchNodeMB,player_id, num_simulations = 100, c_param = 0.1, minmax_depth = 4,duration = 1) -> None:
-            self.root = root
-            self.num_simulations = num_simulations
-            self.c_param = c_param
-            self.player_id = player_id
-            self.minmax_depth = minmax_depth
-            self.duration = duration
-            
 
-    @abstractmethod
-    def make_move(self, game: 'Game') -> tuple[tuple[int, int], Move]:
-        #print(f"make_move -> my player id: {self.player_id}")
-        # root = MonteCarloTreeSearchNode(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,num_simulations=self.num_simulations, c_param=self.c_param)
-        # selected_node = root.best_action()
-        # from_pos, move = selected_node.parent_action
-        
-
-        # Call the minimax method to get the best action
-        #print("Da make_move entro in minimax")
-        root = MonteCarloTreeSearchNodeMB(Board(game.get_board()), player_id=self.player_id, d=0, root_player=self.player_id,id=0,minmax_depth=self.minmax_depth,num_simulations=self.num_simulations, c_param=self.c_param,duration = self.duration)
-        selected_node = root.best_action()
-        from_pos, move = selected_node.parent_action
-        #print('In make_move del nostro player -> Il nodo selezionato è il seguente: ', selected_node)
-        #print(f"In make_move del nostro player -> from_pos (col,row): {from_pos}, move: {move}")
-        return from_pos, Move(move.value)
-    
 class MonteCarloPNSPlayer(Player):
     def __init__(self, player_id, duration = 1, c_param = 0.1, pn_param = 0.1,MR_hybrid = False, minimax_depth = 1) -> None:
         self.duration = duration

@@ -242,7 +242,7 @@ class PN_MCTS_Node():
         return winner
     
 
-    # In this step all the statistics for the nodes are updated. Untill the parent node is reached, 
+    # In this step all the statistics for the nodes are updated. Until the parent node is reached, 
     # the number of visits for each node is incremented by 1. If the result is 1, that is it 
     # resulted in a win, then the win is incremented by 1. Otherwise if result is a loss, 
     # then loss is incremented by 1.

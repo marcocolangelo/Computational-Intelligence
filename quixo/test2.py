@@ -2,9 +2,9 @@ import os
 import random
 import numpy as np
 import tqdm
-from game import Game, MonteCarloPlayer, Move, Player
+from game import Game, MonteCarloPNSPlayer, Move, Player
 from board import Board
-from tree import MonteCarloTreeSearchNode
+from tree_PNS import PN_MCTS_Node
 
 
 
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     my_player_id = 0
     players = np.empty(2, dtype=Player)
     tot = 100
-
+    duration = 0.5
     # cross validation backbone to find best hyperparameters
         # this below is the best configuration found if we consider a performance/execution_time tradeoff
     for ns in [1]:
@@ -38,19 +38,22 @@ if __name__ == '__main__':
             #play tot games
             for i in tqdm.tqdm(range(tot)):
                 my_player_id = 0
-                #print(f"my_player_id: {my_player_id}")
+                print(f"my_player_id: {my_player_id}")
                 g = Game()
                 #g.print()
 
                 # player initialization -> our player is players[my_player_id]
-                root = MonteCarloTreeSearchNode(state=Board(), player_id=my_player_id, d=0, id=0,root_player=my_player_id, num_simulations=ns,c_param=cp)
-                players[my_player_id] = MonteCarloPlayer(root=root, player_id=my_player_id,num_simulations=ns, c_param=cp)
+               # player initialization -> our player is players[my_player_id]
+                minmax_depth = 1
+                MR_hybrid = False # if True, the player will use the Minimax hybrid algorithm for the rollout
+
+                players[my_player_id] = MonteCarloPNSPlayer(player_id=my_player_id,duration=duration, c_param=0.5, pn_param=0.5,MR_hybrid = MR_hybrid,minimax_depth=minmax_depth)
                 players[1 - my_player_id] = RandomPlayer()
                 
                 # play the game
                 winner = g.play(players[0], players[1])
                 g.print()
-                #print(f"Winner: Player {winner}")
+                print(f"Winner: Player {winner}")
                 matches += 1
 
                 #update accuracy
@@ -58,13 +61,13 @@ if __name__ == '__main__':
                     
                     wins += 1
                     winning_board.append(g.get_board())
-                    np.save("Computational-Intelligence\\quixo\\features\\won_test3.npy", winning_board)
+                    #np.save("Computational-Intelligence\\quixo\\features\\won_test3.npy", winning_board)
                 else:
                     #g.print()
                     losing_board.append(g.get_board())
-                    np.save("Computational-Intelligence\\quixo\\features\\lost_test3.npy", losing_board)
+                    #np.save("Computational-Intelligence\\quixo\\features\\lost_test3.npy", losing_board)
 
-                print(g.get_board())
+                #print(g.get_board())
             #print accuracy
             acc  = 100*float(wins)/float(matches)
             print("accuracy: ",acc )
@@ -72,16 +75,16 @@ if __name__ == '__main__':
             #save results
             results[str(ns) + "-"+ str(cp)] = acc
 
-            np.save("Computational-Intelligence\\quixo\\features\\lost_test3.npy", losing_board)
-            with open('Computational-Intelligence\\quixo\\features\\lost_test3.txt', 'a' if os.path.isfile('lost.txt') else 'w') as file:
-                        file.write("\n")
-                        file.write(str(losing_board))    
+            # np.save("Computational-Intelligence\\quixo\\features\\lost_test3.npy", losing_board)
+            # with open('Computational-Intelligence\\quixo\\features\\lost_test3.txt', 'a' if os.path.isfile('lost.txt') else 'w') as file:
+            #             file.write("\n")
+            #             file.write(str(losing_board))    
                         
-                        #print(losing_board)
+            #             #print(losing_board)
 
-            np.save("Computational-Intelligence\\quixo\\features\\won_test3.npy", winning_board)
-            with open('Computational-Intelligence\\quixo\\features\\won_test3.txt', 'a' if os.path.isfile('won.txt') else 'w') as file:
-                        file.write("\n")
-                        file.write(str(losing_board))
-                        #print(winning_board)
+            # np.save("Computational-Intelligence\\quixo\\features\\won_test3.npy", winning_board)
+            # with open('Computational-Intelligence\\quixo\\features\\won_test3.txt', 'a' if os.path.isfile('won.txt') else 'w') as file:
+            #             file.write("\n")
+            #             file.write(str(losing_board))
+            #             #print(winning_board)
     

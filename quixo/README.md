@@ -44,7 +44,7 @@ It contains the `MonteCarloPlayer_classic` as well and it represents the origina
 
 ### 3. tree.py
 
-In the `tree.py` file, we implemented a simple Monte Carlo tree search (MCTS) algorithm based on the Upper Confidence Bound for Trees (UCT) selection. The `MonteCarloTreeSearchNodeNoGreedy` class represents the Monte Carlo tree nodes. Key functions include:
+In the `tree.py` file, we implemented a simple Monte Carlo tree search (MCTS) algorithm based on the Upper Confidence Bound for Trees (UCT) selection. The `MonteCarloTreeSearchNode` class represents the Monte Carlo tree nodes. Key functions include:
 
 - **Selection (here called best_child):** Implements the Upper Confidence Bound for Trees (UCT) formula to select the best child of a node.
 - **Expansion:** Expands the search tree by adding a new child node to the current node.
@@ -96,7 +96,8 @@ Hence, the PN-MCTS player is to consider our main choice to present you for this
 ## Testing and Experiments
 
 Our testing process involved running multiple experiments with different configurations, including variations in the duration, C parameter, and PN parameter. We conducted cross-validation to ensure the reliability of our results.
-In the `test1.py` and `test2.py` files you can find some tests between a classic version of the MCTS player against the Random player.
+In the `test1.py` file you can find some tests between a classic version of the MCTS player against the Random player.
+In the `test2.py` file you can find some tests between the PN-MCTS player against the Random player.
 In the `main.py` file you can find some tests between the PN-MCTS player against the MCTS player.
 
 ## Contributing

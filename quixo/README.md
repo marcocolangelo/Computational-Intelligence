@@ -2,7 +2,8 @@
 
 ## Overview
 
-This repository contains the implementation of a game-playing agent using Monte Carlo Tree Search (MCTS) and an extension called Proof-Number MCTS (PN-MCTS). The agent is designed to play a specific game, and the implementation includes various components such as the game board, MCTS algorithm, and configurations for experimentation.
+This repository contains the implementation of a game-playing agent using **Monte Carlo Tree Search (MCTS)** and an extension called **Proof-Number MCTS (PN-MCTS)**. The agent is designed to play a specific game, and the implementation includes various components such as the game board, MCTS algorithm, and configurations for experimentation.
+As a result of our test results, we can say that the **PN-MCTS** version is a good step forward from the classic **MCTS** version
 
 ## Game Description
 
@@ -28,7 +29,7 @@ The `board.py` file models the game board. Key features include:
 
 ### 3. monte_carlo_pns_player.py
 
-The `monte_carlo_pns_player.py` file contains the `MonteCarloPNSPlayer` class, representing the player using PN-MCTS. The class interacts with the `play_game` function and integrates with the MCTSNode class. Key attributes include:
+The `game.py` file contains the `MonteCarloPNSPlayer` class, representing the player using PN-MCTS. The class interacts with the `play_game` function and integrates with the MCTSNode class. Key attributes include:
 
 - `duration`: Time limit for MCTS.
 - `c_param`: Parameter for balancing exploration and exploitation in MCTS.
@@ -70,14 +71,17 @@ The `tree_pns.py` file extends the basic MCTS implementation to include Proof-Nu
 
 ### Best Configuration
 
-The best configuration found for the game-playing agent is #5 in the MCTS configuration and #5 in the PN-MCTS configuration. These configurations achieved a victory percentage of 98.0%.
+The best configuration found for the game-playing agent is #5 in the MCTS configuration and #5 in the PN-MCTS configuration. These configurations achieved a victory percentage of 98.0% and over 99% (againt a Random player) respectively.
+Hence, the PN-MCTS player is to consider our main choice to present you for this project.
 
 ## Testing and Experiments
 
-Our testing process involved running multiple experiments with different configurations, including variations in the duration, C parameter, and PN parameter. We conducted cross-validation to ensure the reliability of our results. Challenges faced included...
+Our testing process involved running multiple experiments with different configurations, including variations in the duration, C parameter, and PN parameter. We conducted cross-validation to ensure the reliability of our results.
+In the `test1.py` and `test2.py` files you can find some tests between a classic version of the MCTS player against the Random player.
+In the `main.py` file you can find some tests between the PN-MCTS player against the MCTS player.
 
 ## Contributing
-
+Project coded in collaboration of Roberto Pulvirenti, a.k.a. ImBlurryF4c3 on GitHub
 If you wish to contribute to the project, please follow these guidelines:
 
 - Adhere to the coding standards specified in the project.
